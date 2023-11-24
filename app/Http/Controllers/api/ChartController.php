@@ -27,16 +27,16 @@ class ChartController extends Controller
         et.name AS Edge_Types_Name,
 	    et.edge_type_id, tet.edge_group_id,
         tet.name AS Grouped_Edge_Types_Name FROM source.sci_lits as sl 
-        INNER JOIN graphs.node_edge_sci_lit_rels AS neslr ON sl.pmid = neslr.pmid
-        JOIN graphs.node_edge_rels AS nern ON neslr.ne_id = nern.id 
-        JOIN graphs.node_node_relation_types AS nnrtn ON nern.nnrt_id = nnrtn.nnrt_id 
-        JOIN graphs.nodes AS nsn ON nern.source_node = nsn.node_id 
-        JOIN graphs.node_edge_rels AS ner ON nern.id = ner.id 
-        JOIN graphs.nodes AS ndn ON nern.destination_node = ndn.node_id 
-        -- JOIN graphs.edge_types AS et ON nern.edge_type_id = et.edge_type_id
-        -- LEFT JOIN graphs.temp_edge_type_group AS tet ON tet.edge_type_id = nern.edge_type_id 
-        JOIN graphs.edge_types et on et.edge_type_id=nern.edge_type_id 
-        JOIN graphs.edge_type_group_master tet on tet.edge_group_id=et.edge_group_id";
+        INNER JOIN graphs_new.node_edge_sci_lit_rels AS neslr ON sl.pmid = neslr.pmid
+        JOIN graphs_new.node_edge_rels AS nern ON neslr.ne_id = nern.id 
+        JOIN graphs_new.node_node_relation_types AS nnrtn ON nern.nnrt_id = nnrtn.nnrt_id 
+        JOIN graphs_new.nodes AS nsn ON nern.source_node = nsn.node_id 
+        JOIN graphs_new.node_edge_rels AS ner ON nern.id = ner.id 
+        JOIN graphs_new.nodes AS ndn ON nern.destination_node = ndn.node_id 
+        -- JOIN graphs_new.edge_types AS et ON nern.edge_type_id = et.edge_type_id
+        -- LEFT JOIN graphs_new.temp_edge_type_group AS tet ON tet.edge_type_id = nern.edge_type_id 
+        JOIN graphs_new.edge_types et on et.edge_type_id=nern.edge_type_id 
+        JOIN graphs_new.edge_type_group_master tet on tet.edge_group_id=et.edge_group_id";
 
         // $sql = $sql . "Where sl.publication_date > '2017-06-01' AND";
 
@@ -127,16 +127,16 @@ class ChartController extends Controller
         ndn.node_id as destination_node_id,	  
         et.name AS Edge_Types_Name,
         tet.name AS Grouped_Edge_Types_Name FROM source.sci_lits as sl 
-        INNER JOIN graphs.node_edge_sci_lit_rels AS neslr ON sl.pmid = neslr.pmid
-        JOIN graphs.node_edge_rels AS nern ON neslr.ne_id = nern.id 
-        JOIN graphs.node_node_relation_types AS nnrtn ON nern.nnrt_id = nnrtn.nnrt_id 
-        JOIN graphs.nodes AS nsn ON nern.source_node = nsn.node_id 
-        JOIN graphs.node_edge_rels AS ner ON nern.id = ner.id 
-        JOIN graphs.nodes AS ndn ON nern.destination_node = ndn.node_id 
-        -- JOIN graphs.edge_types AS et ON nern.edge_type_id = et.edge_type_id
-        -- LEFT JOIN graphs.temp_edge_type_group AS tet ON tet.edge_type_id = nern.edge_type_id 
-        JOIN graphs.edge_types et on et.edge_type_id=nern.edge_type_id 
-        JOIN graphs.edge_type_group_master tet on tet.edge_group_id=et.edge_group_id";
+        INNER JOIN graphs_new.node_edge_sci_lit_rels AS neslr ON sl.pmid = neslr.pmid
+        JOIN graphs_new.node_edge_rels AS nern ON neslr.ne_id = nern.id 
+        JOIN graphs_new.node_node_relation_types AS nnrtn ON nern.nnrt_id = nnrtn.nnrt_id 
+        JOIN graphs_new.nodes AS nsn ON nern.source_node = nsn.node_id 
+        JOIN graphs_new.node_edge_rels AS ner ON nern.id = ner.id 
+        JOIN graphs_new.nodes AS ndn ON nern.destination_node = ndn.node_id 
+        -- JOIN graphs_new.edge_types AS et ON nern.edge_type_id = et.edge_type_id
+        -- LEFT JOIN graphs_new.temp_edge_type_group AS tet ON tet.edge_type_id = nern.edge_type_id 
+        JOIN graphs_new.edge_types et on et.edge_type_id=nern.edge_type_id 
+        JOIN graphs_new.edge_type_group_master tet on tet.edge_group_id=et.edge_group_id";
 
         $sql = $sql . " Where ";
         // -- sl.publication_date > '2017-06-01 and ' 
@@ -225,16 +225,16 @@ class ChartController extends Controller
         et.name AS Edge_Types_Name,
         tet.name AS Grouped_Edge_Types_Name
         FROM source.sci_lits as sl
-        JOIN graphs.node_edge_sci_lit_rels AS neslr ON sl.pmid = neslr.pmid
-        JOIN graphs.node_edge_rels AS nern ON neslr.ne_id = nern.id
-        JOIN graphs.node_node_relation_types AS nnrtn ON nern.nnrt_id = nnrtn.nnrt_id
-        JOIN graphs.nodes AS nsn ON nern.source_node = nsn.node_id
-        JOIN graphs.node_edge_rels AS ner ON nern.id = ner.id
-        JOIN graphs.nodes AS ndn ON nern.destination_node = ndn.node_id
-        -- JOIN graphs.edge_types AS et ON nern.edge_type_id = et.edge_type_id
-        -- LEFT JOIN graphs.temp_edge_type_group AS tet ON tet.edge_type_id = nern.edge_type_id
-        JOIN graphs.edge_types et on et.edge_type_id=nern.edge_type_id 
-        JOIN graphs.edge_type_group_master tet on tet.edge_group_id=et.edge_group_id Where";
+        JOIN graphs_new.node_edge_sci_lit_rels AS neslr ON sl.pmid = neslr.pmid
+        JOIN graphs_new.node_edge_rels AS nern ON neslr.ne_id = nern.id
+        JOIN graphs_new.node_node_relation_types AS nnrtn ON nern.nnrt_id = nnrtn.nnrt_id
+        JOIN graphs_new.nodes AS nsn ON nern.source_node = nsn.node_id
+        JOIN graphs_new.node_edge_rels AS ner ON nern.id = ner.id
+        JOIN graphs_new.nodes AS ndn ON nern.destination_node = ndn.node_id
+        -- JOIN graphs_new.edge_types AS et ON nern.edge_type_id = et.edge_type_id
+        -- LEFT JOIN graphs_new.temp_edge_type_group AS tet ON tet.edge_type_id = nern.edge_type_id
+        JOIN graphs_new.edge_types et on et.edge_type_id=nern.edge_type_id 
+        JOIN graphs_new.edge_type_group_master tet on tet.edge_group_id=et.edge_group_id Where";
 
         //-- sl.publication_date > '2017-06-01' AND
         $sql.=" nsn.node_id <> ndn.node_id ";
@@ -326,13 +326,13 @@ class ChartController extends Controller
         et.edge_type_id,
         tet.edge_group_id,
         tet.name AS Grouped_Edge_Types_Name FROM source.sci_lits as sl 
-        INNER JOIN graphs.node_edge_sci_lit_rels AS neslr ON sl.pmid=neslr.pmid JOIN graphs.node_edge_rels 
-        AS nern ON neslr.ne_id=nern.id JOIN graphs.node_node_relation_types AS nnrtn 
-        ON nern.nnrt_id=nnrtn.nnrt_id JOIN graphs.nodes AS nsn ON nern.source_node=nsn.node_id 
-        JOIN graphs.node_edge_rels AS ner ON nern.id=ner.id 
-        JOIN graphs.nodes AS ndn ON nern.destination_node=ndn.node_id
-        JOIN graphs.edge_types et on et.edge_type_id=nern.edge_type_id 
-        JOIN graphs.edge_type_group_master tet on tet.edge_group_id=et.edge_group_id 
+        INNER JOIN graphs_new.node_edge_sci_lit_rels AS neslr ON sl.pmid=neslr.pmid JOIN graphs_new.node_edge_rels 
+        AS nern ON neslr.ne_id=nern.id JOIN graphs_new.node_node_relation_types AS nnrtn 
+        ON nern.nnrt_id=nnrtn.nnrt_id JOIN graphs_new.nodes AS nsn ON nern.source_node=nsn.node_id 
+        JOIN graphs_new.node_edge_rels AS ner ON nern.id=ner.id 
+        JOIN graphs_new.nodes AS ndn ON nern.destination_node=ndn.node_id
+        JOIN graphs_new.edge_types et on et.edge_type_id=nern.edge_type_id 
+        JOIN graphs_new.edge_type_group_master tet on tet.edge_group_id=et.edge_group_id 
         Where nsn.node_id<>ndn.node_id ";
 
         if($request->nnrt_id2 == ""){
