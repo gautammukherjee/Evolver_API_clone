@@ -26,7 +26,7 @@ class ChartController extends Controller
         ndn.node_id as destination_node_id,	  
         et.name AS Edge_Types_Name,
 	    et.edge_type_id, tet.edge_group_id,
-        tet.name AS Grouped_Edge_Types_Name FROM source.sci_lits as sl 
+        tet.name AS Grouped_Edge_Types_Name FROM source_new.sci_lits as sl 
         INNER JOIN graphs_new.node_edge_sci_lit_rels AS neslr ON sl.pmid = neslr.pmid
         JOIN graphs_new.node_edge_rels AS nern ON neslr.ne_id = nern.id 
         JOIN graphs_new.node_node_relation_types AS nnrtn ON nern.nnrt_id = nnrtn.nnrt_id 
@@ -126,7 +126,7 @@ class ChartController extends Controller
         ndn.name AS Destination_Node_Name,
         ndn.node_id as destination_node_id,	  
         et.name AS Edge_Types_Name,
-        tet.name AS Grouped_Edge_Types_Name FROM source.sci_lits as sl 
+        tet.name AS Grouped_Edge_Types_Name FROM source_new.sci_lits as sl 
         INNER JOIN graphs_new.node_edge_sci_lit_rels AS neslr ON sl.pmid = neslr.pmid
         JOIN graphs_new.node_edge_rels AS nern ON neslr.ne_id = nern.id 
         JOIN graphs_new.node_node_relation_types AS nnrtn ON nern.nnrt_id = nnrtn.nnrt_id 
@@ -224,7 +224,7 @@ class ChartController extends Controller
         ndn.name AS Destination_Node_Name,
         et.name AS Edge_Types_Name,
         tet.name AS Grouped_Edge_Types_Name
-        FROM source.sci_lits as sl
+        FROM source_new.sci_lits as sl
         JOIN graphs_new.node_edge_sci_lit_rels AS neslr ON sl.pmid = neslr.pmid
         JOIN graphs_new.node_edge_rels AS nern ON neslr.ne_id = nern.id
         JOIN graphs_new.node_node_relation_types AS nnrtn ON nern.nnrt_id = nnrtn.nnrt_id
@@ -325,7 +325,7 @@ class ChartController extends Controller
         et.name AS Edge_Types_Name,
         et.edge_type_id,
         tet.edge_group_id,
-        tet.name AS Grouped_Edge_Types_Name FROM source.sci_lits as sl 
+        tet.name AS Grouped_Edge_Types_Name FROM source_new.sci_lits as sl 
         INNER JOIN graphs_new.node_edge_sci_lit_rels AS neslr ON sl.pmid=neslr.pmid JOIN graphs_new.node_edge_rels 
         AS nern ON neslr.ne_id=nern.id JOIN graphs_new.node_node_relation_types AS nnrtn 
         ON nern.nnrt_id=nnrtn.nnrt_id JOIN graphs_new.nodes AS nsn ON nern.source_node=nsn.node_id 

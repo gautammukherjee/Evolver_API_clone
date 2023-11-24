@@ -562,7 +562,7 @@ class NodeController extends Controller
         (SELECT sl.pmid AS pmid, sl.publication_date AS publication_date, sl.title AS title, neslr.pmid 
         AS Node_Edge_Sci_Lit_Rels_pmid,nnrtn.name AS Node_Node_Relation_Types, nnrtn.nnrt_id,nsn.name AS Source_Node_Name,nsn.node_id 
         as source_node_id,ndn.name AS Destination_Node_Name,ndn.node_id as destination_node_id,et.name AS Edge_Types_Name,et.edge_type_id, 
-        tet.edge_group_id,tet.name AS Grouped_Edge_Types_Name FROM source.sci_lits as sl INNER JOIN graphs_new.node_edge_sci_lit_rels AS neslr 
+        tet.edge_group_id,tet.name AS Grouped_Edge_Types_Name FROM source_new.sci_lits as sl INNER JOIN graphs_new.node_edge_sci_lit_rels AS neslr 
         ON sl.pmid = neslr.pmid JOIN graphs_new.node_edge_rels AS nern ON neslr.ne_id = nern.id JOIN graphs_new.node_node_relation_types AS nnrtn 
         ON nern.nnrt_id = nnrtn.nnrt_id JOIN graphs_new.nodes AS nsn ON nern.source_node = nsn.node_id JOIN graphs_new.node_edge_rels 
         AS ner ON nern.id = ner.id JOIN graphs_new.nodes AS ndn ON nern.destination_node = ndn.node_id 
@@ -642,7 +642,7 @@ class NodeController extends Controller
     public function getEdgePMIDLists(Request $request)
     {
         $sql = "select distinct neslr.pmid,ner.edge_type_id,";
-        $sql = $sql . " (select name from graphs_new.edge_types WHERE edge_type_id=ner.edge_type_id) as edge_type_name,sl.title,sl.publication_date from graphs_new.node_edge_sci_lit_rels neslr JOIN graphs_new.node_edge_rels ner ON neslr.ne_id=ner.id join source.sci_lits sl on neslr.pmid=sl.pmid "; //-- uncomment for additional pmid specific details along with join part
+        $sql = $sql . " (select name from graphs_new.edge_types WHERE edge_type_id=ner.edge_type_id) as edge_type_name,sl.title,sl.publication_date from graphs_new.node_edge_sci_lit_rels neslr JOIN graphs_new.node_edge_rels ner ON neslr.ne_id=ner.id join source_new.sci_lits sl on neslr.pmid=sl.pmid "; //-- uncomment for additional pmid specific details along with join part
 
         $ne_ids = collect($request->ne_ids);
         $ne_idsImplode = $ne_ids->implode(', ');
@@ -669,11 +669,11 @@ class NodeController extends Controller
         ON ner.edge_type_id=et.edge_type_id where ner.id=neslr.ne_id)
         as edge_type_name
         from 
-        graphs_new.node_edge_sci_lit_rels neslr join source.sci_lits sl on neslr.pmid=sl.pmid 
+        graphs_new.node_edge_sci_lit_rels neslr join source_new.sci_lits sl on neslr.pmid=sl.pmid 
         Join graphs_new.node_edge_rels ner on ner.id=neslr.ne_id ";
         // $sql = $sql . " ,sl.title,sl.publication_date"; //-- uncomment for additional pmid specific details along with join part
         // $sql = $sql . " from graphs_new.node_edge_sci_lit_rels neslr";
-        // $sql = $sql . " join source.sci_lits sl on neslr.pmid=sl.pmid"; //-- uncomment for additional pmid specific details along with  ";
+        // $sql = $sql . " join source_new.sci_lits sl on neslr.pmid=sl.pmid"; //-- uncomment for additional pmid specific details along with  ";
 
         $ne_ids = collect($request->ne_ids);
         $ne_idsImplode = $ne_ids->implode(', ');
@@ -697,7 +697,7 @@ class NodeController extends Controller
 
     public function getPMIDListsInRelation(Request $request)
     {
-        $sql = "select distinct neslr.pmid, sl.title, sl.publication_date from graphs_new.node_edge_rels ndr join graphs_new.node_edge_sci_lit_rels neslr on ndr.id = neslr.ne_id join source.sci_lits sl on neslr.pmid = sl.pmid where 1=1 ";
+        $sql = "select distinct neslr.pmid, sl.title, sl.publication_date from graphs_new.node_edge_rels ndr join graphs_new.node_edge_sci_lit_rels neslr on ndr.id = neslr.ne_id join source_new.sci_lits sl on neslr.pmid = sl.pmid where 1=1 ";
 
         if ($request->source_node!='')
             $sql = $sql . " and ndr.source_node = " . $request->source_node; // pass source-node relation
@@ -720,8 +720,8 @@ class NodeController extends Controller
 
     public function getEdgePMIDCount(Request $request)
     {
-        $sql = "select count(distinct neslr.pmid) as pmid_count from graphs_new.node_edge_sci_lit_rels neslr join source.sci_lits sl on neslr.pmid=sl.pmid Join graphs_new.node_edge_rels ner on ner.id=neslr.ne_id "; //-- uncomment for additional pmid specific details along with join part
-        // $sql = "select count(neslr.ne_id) as pmid_count from graphs_new.node_edge_sci_lit_rels neslr join source.sci_lits sl on neslr.pmid=sl.pmid  "; //-- uncomment for additional pmid specific details along with join part
+        $sql = "select count(distinct neslr.pmid) as pmid_count from graphs_new.node_edge_sci_lit_rels neslr join source_new.sci_lits sl on neslr.pmid=sl.pmid Join graphs_new.node_edge_rels ner on ner.id=neslr.ne_id "; //-- uncomment for additional pmid specific details along with join part
+        // $sql = "select count(neslr.ne_id) as pmid_count from graphs_new.node_edge_sci_lit_rels neslr join source_new.sci_lits sl on neslr.pmid=sl.pmid  "; //-- uncomment for additional pmid specific details along with join part
         $ne_ids = collect($request->edge_type_pmid);
         $ne_idsImplode = $ne_ids->implode(', ');
         if (!empty($ne_idsImplode))
