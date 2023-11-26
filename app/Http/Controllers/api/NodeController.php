@@ -115,7 +115,7 @@ class NodeController extends Controller
         }
         else
         {
-            $sql = "select distinct ns1.node_syn_id, ns1.name as syn_node_name,ndr.source_node,n1.name as source_node_name from graphs.node_edge_rels ndr join graphs.nodes n1 on ndr.source_node=n1.node_id"; //join graphs.nodes n2 on ndr.destination_node=n2.node_id
+            $sql = "select distinct ns1.node_syn_id, ns1.name as syn_node_name,ndr.source_node,n1.name as source_node_name from graphs_new.node_edge_rels ndr join graphs_new.nodes n1 on ndr.source_node=n1.node_id"; //join graphs_new.nodes n2 on ndr.destination_node=n2.node_id
             $sql = $sql . " join graphs_new.node_syns ns1 on n1.node_id=ns1.node_id "; // -- (Uncomment when source_node_synonym name searched)
 
             $sql = $sql . " where 1=1";
@@ -125,7 +125,7 @@ class NodeController extends Controller
             }
             $sql = $sql . " and source_node<>destination_node"; //same node can't connect with itself";
             if ($request->searchval != "") {
-                $sql = $sql . " and (n1.name ilike '$request->searchval%' OR ns1.name ilike '$request->searchval%')"; // search with source node
+                $sql = $sql . " and (n1.name ilike ' $request->searchval%' OR ns1.name ilike ' $request->searchval%')"; // search with source node
                 // $sql = $sql . " and ns1.name ilike '%$request->searchval%' "; // search with synonym source node
             }
             $sql = $sql . " order by source_node_name";
@@ -743,17 +743,14 @@ class NodeController extends Controller
     public function getEvidenceData(Request $request){
         $ne_id = $request->ne_id;
         $pubmed_id = $request->pubmed_id;
-        //$sql = "select evidence_data from graphs_new.evidence_metadata_details where ne_id in (208567)";
+        //$sql = "select evidence_data from graphs_new.evidence_metadata_details_new where ne_id in (208567)";
         $sql = "select distinct a.gene_symbol_e1, a.gene_symbol_e2, a.e1_type_name, a.e2_type_name, a.edge_name, a.pubmed_id,
-                b.sentence
+                a.evidence_data as sentence
                 from 
-                graphs_new.evidence_metadata_details a, 
-                onto_model_source.relation_extraction_outputs b
+                graphs_new.evidence_metadata_details_new a
                 where 
                 a.ne_id in (".$ne_id.")
-                and a.pubmed_id in (".$pubmed_id.")
-                and 
-                b.rel_extract_id = a.rel_extract_id";
+                and a.pubmed_id in (".$pubmed_id.")";
                 //"and a.rel_extract_id!= 1" 
         // echo $sql;
         $result = DB::select($sql);
@@ -810,7 +807,7 @@ class NodeController extends Controller
             }
             
             /////////////////////// 2. Start For Sentences /////////////////////////////
-            $sql = "select distinct a.rel_extract_id, a.gene_symbol_e1,a.gene_symbol_e2,a.e1_type_name,a.e2_type_name,a.edge_name,a.pubmed_id,b.sentence from graphs_new.evidence_metadata_details a,onto_model_source.relation_extraction_outputs b ";
+            $sql = "select distinct a.gene_symbol_e1,a.gene_symbol_e2,a.e1_type_name,a.e2_type_name,a.edge_name,a.pubmed_id,a.evidence_data as sentence from graphs_new.evidence_metadata_details_new a ";
             $sql = $sql . " Where (";
             $i=1;
             foreach ($scenario['result_data_set'] as $product) {            
@@ -819,7 +816,7 @@ class NodeController extends Controller
                     $sql = $sql." or ";
                 $i++;
             }
-            $sql = $sql . " ) and b.rel_extract_id=a.rel_extract_id";
+            $sql = $sql . " )";
             // echo $sql;
             $result = DB::select($sql);
 
@@ -928,7 +925,7 @@ class NodeController extends Controller
             }
 
             /////////////////////// 2. Start For Sentences /////////////////////////////
-            $sql = "select distinct a.rel_extract_id, a.gene_symbol_e1,a.gene_symbol_e2,a.e1_type_name,a.e2_type_name,a.edge_name,a.pubmed_id,b.sentence from graphs_new.evidence_metadata_details a,onto_model_source.relation_extraction_outputs b ";
+            $sql = "select distinct a.gene_symbol_e1,a.gene_symbol_e2,a.e1_type_name,a.e2_type_name,a.edge_name,a.pubmed_id,a.evidence_data as sentence from graphs_new.evidence_metadata_details_new a ";
             $sql = $sql . " Where (";
             $i=1;
             foreach (json_decode($finalJsonData) as $product) {            
@@ -937,7 +934,7 @@ class NodeController extends Controller
                     $sql = $sql." or ";
                 $i++;
             }
-            $sql = $sql . " ) and b.rel_extract_id=a.rel_extract_id";
+            $sql = $sql . " )";
             // echo $sql;
             $result = DB::select($sql);
 
