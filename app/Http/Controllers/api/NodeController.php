@@ -125,12 +125,12 @@ class NodeController extends Controller
             }
             $sql = $sql . " and source_node<>destination_node"; //same node can't connect with itself";
             if ($request->searchval != "") {
-                $sql = $sql . " and (n1.name ilike ' $request->searchval%' OR ns1.name ilike ' $request->searchval%')"; // search with source node
+                $sql = $sql . " and (n1.name ilike '$request->searchval%' OR ns1.name ilike '$request->searchval%')"; // search with source node
                 // $sql = $sql . " and ns1.name ilike '%$request->searchval%' "; // search with synonym source node
             }
             $sql = $sql . " order by source_node_name";
         }
-        //  echo $sql;
+         echo $sql;
         $result = DB::select($sql);
         return response()->json([
             'sourceNodeRecords' => $result
