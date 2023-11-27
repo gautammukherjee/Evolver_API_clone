@@ -130,7 +130,7 @@ class NodeController extends Controller
             }
             $sql = $sql . " order by source_node_name";
         }
-         echo $sql;
+        //  echo $sql;
         $result = DB::select($sql);
         return response()->json([
             'sourceNodeRecords' => $result
