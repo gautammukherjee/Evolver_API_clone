@@ -26,7 +26,7 @@ class UserController extends Controller
     {
         $email = $request->email;
         $password = md5($request->password);
-        $sql = "SELECT * FROM users WHERE email='" . $email . "' AND passwd='" . $password . "' AND deleted=1";
+        $sql = "SELECT * FROM users WHERE email='" . $email . "' AND passwd='" . $password . "' AND deleted=0";
         // $sql = "SELECT * FROM users WHERE email='" . $email . "' AND passwd='" . $password . "'";
         //echo $sql;
         $result = DB::connection('pgsql2')->select($sql);
