@@ -2243,7 +2243,7 @@ class NodeRevampController extends Controller
     //////// ****************** For Filter3 ****************///////////////////
     public function getNodeSelects3(Request $request)
     {
-        $sql = "select nnrt_id,name as pair_name from graphs_new.node_node_relation_types where deleted=0";
+        $sql = "select nnrt_id,name as pair_name from graphs_new.node_node_relation_types where deleted=0 order by sr_no";
         if ($request->cameFromScenario == 1) {
             if ($request->nnrt_id3 != "") {
                 $sql = $sql . " and nnrt_id = " . $request->nnrt_id3; // pass node-node relation type id
