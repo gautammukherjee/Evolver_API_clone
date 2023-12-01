@@ -47,7 +47,7 @@ class NodeController extends Controller
 
     public function getNodeSelects2(Request $request)
     {
-        $sql = "select nnrt_id,name as pair_name from graphs_new.node_node_relation_types where deleted=0 order by sr_no";
+        $sql = "select nnrt_id,name as pair_name from graphs_new.node_node_relation_types where deleted=0 ";
         
         if ($request->cameFromScenario == 1) {
                 if ($request->nnrt_id2 != "") {
@@ -58,6 +58,7 @@ class NodeController extends Controller
                 $sql = $sql . " and nnrt_id != " . $request->nnrt_id; // pass node-node relation type id
             }
         }
+        $sql = $sql." order by sr_no";
         // echo $sql;
         $result = DB::select($sql);
         return response()->json([
