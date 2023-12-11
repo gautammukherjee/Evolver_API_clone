@@ -31,7 +31,7 @@ class ChartController extends Controller
         JOIN graphs_new.node_edge_rels AS nern ON neslr.ne_id = nern.id 
         JOIN graphs_new.node_node_relation_types AS nnrtn ON nern.nnrt_id = nnrtn.nnrt_id 
         JOIN graphs_new.nodes AS nsn ON nern.source_node = nsn.node_id 
-        JOIN graphs_new.node_edge_rels AS ner ON nern.id = ner.id 
+        -- JOIN graphs_new.node_edge_rels AS ner ON nern.id = ner.id 
         JOIN graphs_new.nodes AS ndn ON nern.destination_node = ndn.node_id 
         -- JOIN graphs_new.edge_types AS et ON nern.edge_type_id = et.edge_type_id
         -- LEFT JOIN graphs_new.temp_edge_type_group AS tet ON tet.edge_type_id = nern.edge_type_id 
@@ -40,8 +40,8 @@ class ChartController extends Controller
 
         // $sql = $sql . "Where sl.publication_date > '2017-06-01' AND";
 
-        $sql = $sql . " Where ";
-        $sql = $sql . " nsn.node_id <> ndn.node_id ";
+        $sql = $sql . " Where nern.deleted = 0";
+        $sql = $sql . " AND nsn.node_id <> ndn.node_id ";
         // $sql = $sql . " AND nsn.name NOT IN ('WAS','IMPACT', 'HR', 'SIT') AND ndn.name NOT IN ('WAS','IMPACT', 'HR', 'SIT')";
 
         if($request->nnrt_id2 == ""){
@@ -131,16 +131,16 @@ class ChartController extends Controller
         JOIN graphs_new.node_edge_rels AS nern ON neslr.ne_id = nern.id 
         JOIN graphs_new.node_node_relation_types AS nnrtn ON nern.nnrt_id = nnrtn.nnrt_id 
         JOIN graphs_new.nodes AS nsn ON nern.source_node = nsn.node_id 
-        JOIN graphs_new.node_edge_rels AS ner ON nern.id = ner.id 
+        -- JOIN graphs_new.node_edge_rels AS ner ON nern.id = ner.id 
         JOIN graphs_new.nodes AS ndn ON nern.destination_node = ndn.node_id 
         -- JOIN graphs_new.edge_types AS et ON nern.edge_type_id = et.edge_type_id
         -- LEFT JOIN graphs_new.temp_edge_type_group AS tet ON tet.edge_type_id = nern.edge_type_id 
         JOIN graphs_new.edge_types et on et.edge_type_id=nern.edge_type_id 
         JOIN graphs_new.edge_type_group_master tet on tet.edge_group_id=et.edge_group_id";
 
-        $sql = $sql . " Where ";
+        $sql = $sql . " Where nern.deleted = 0";
         // -- sl.publication_date > '2017-06-01 and ' 
-        $sql = $sql . " nsn.node_id <> ndn.node_id";
+        $sql = $sql . " AND nsn.node_id <> ndn.node_id";
         // $sql = $sql . " AND nsn.name NOT IN ('WAS','IMPACT', 'HR', 'SIT') AND ndn.name NOT IN ('WAS','IMPACT', 'HR', 'SIT')";
 
         if($request->nnrt_id2 == ""){
@@ -229,15 +229,15 @@ class ChartController extends Controller
         JOIN graphs_new.node_edge_rels AS nern ON neslr.ne_id = nern.id
         JOIN graphs_new.node_node_relation_types AS nnrtn ON nern.nnrt_id = nnrtn.nnrt_id
         JOIN graphs_new.nodes AS nsn ON nern.source_node = nsn.node_id
-        JOIN graphs_new.node_edge_rels AS ner ON nern.id = ner.id
+        -- JOIN graphs_new.node_edge_rels AS ner ON nern.id = ner.id
         JOIN graphs_new.nodes AS ndn ON nern.destination_node = ndn.node_id
         -- JOIN graphs_new.edge_types AS et ON nern.edge_type_id = et.edge_type_id
         -- LEFT JOIN graphs_new.temp_edge_type_group AS tet ON tet.edge_type_id = nern.edge_type_id
         JOIN graphs_new.edge_types et on et.edge_type_id=nern.edge_type_id 
-        JOIN graphs_new.edge_type_group_master tet on tet.edge_group_id=et.edge_group_id Where";
+        JOIN graphs_new.edge_type_group_master tet on tet.edge_group_id=et.edge_group_id Where nern.deleted = 0";
 
         //-- sl.publication_date > '2017-06-01' AND
-        $sql.=" nsn.node_id <> ndn.node_id ";
+        $sql.=" AND nsn.node_id <> ndn.node_id ";
 
         //Check the node level and pass the parameter
         if($request->nnrt_id2 == ""){
@@ -329,11 +329,11 @@ class ChartController extends Controller
         INNER JOIN graphs_new.node_edge_sci_lit_rels AS neslr ON sl.pmid=neslr.pmid JOIN graphs_new.node_edge_rels 
         AS nern ON neslr.ne_id=nern.id JOIN graphs_new.node_node_relation_types AS nnrtn 
         ON nern.nnrt_id=nnrtn.nnrt_id JOIN graphs_new.nodes AS nsn ON nern.source_node=nsn.node_id 
-        JOIN graphs_new.node_edge_rels AS ner ON nern.id=ner.id 
+        -- JOIN graphs_new.node_edge_rels AS ner ON nern.id=ner.id 
         JOIN graphs_new.nodes AS ndn ON nern.destination_node=ndn.node_id
         JOIN graphs_new.edge_types et on et.edge_type_id=nern.edge_type_id 
         JOIN graphs_new.edge_type_group_master tet on tet.edge_group_id=et.edge_group_id 
-        Where nsn.node_id<>ndn.node_id ";
+        Where nern.deleted=0 AND nsn.node_id<>ndn.node_id ";
 
         if($request->nnrt_id2 == ""){
             //1. Node select level 1
