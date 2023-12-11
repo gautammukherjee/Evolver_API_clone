@@ -1151,7 +1151,7 @@ class NodeController extends Controller
                 $sourceNodeImplode = $sourceNode->implode(', ');       
                 $sql2 = $sql2 . " select distinct source_node as selected_nodes from cte union select distinct destination_node as selected_nodes from cte";
             }
-            // echo $sql2;
+            echo $sql2;
             $result2 = DB::select($sql2);            
             $diseaseNodes_ids = array();
             foreach ($result2 as $value) {
@@ -1181,7 +1181,7 @@ class NodeController extends Controller
                 ]);
             }
         }
-        // echo $sql;       
+        echo $sql;       
     }
 
     //3 ct API Investigator Name
