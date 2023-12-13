@@ -195,7 +195,7 @@ class NodeRevampController extends Controller
         }
 
         if ($request->limitValue != "") {
-            $sql = $sql . "limit " . $request->limitValue;
+            $sql = $sql . " limit " . $request->limitValue;
         }
         // echo $sql;
 
@@ -391,7 +391,7 @@ class NodeRevampController extends Controller
         }
 
         if ($request->limitValue != "") {
-            $sql = $sql . "limit " . $request->limitValue;
+            $sql = $sql . " limit " . $request->limitValue;
         }else{
             $sql = $sql . " limit 2000";
             // $sql = $sql . "";
@@ -1318,7 +1318,7 @@ class NodeRevampController extends Controller
         }
 
         if ($request->limitValue != "") {
-            $sql = $sql . "limit " . $request->limitValue;
+            $sql = $sql . " limit " . $request->limitValue;
         }
         // echo $sql;
         $result = DB::select($sql);
@@ -1373,7 +1373,7 @@ class NodeRevampController extends Controller
         }
 
         if ($request->limitValue != "") {
-            $sql = $sql . "limit " . $request->limitValue;
+            $sql = $sql . " limit " . $request->limitValue;
         }
 
         // echo $sql;
@@ -1430,7 +1430,7 @@ class NodeRevampController extends Controller
         }
 
         if ($request->limitValue != "") {
-            $sql = $sql . "limit " . $request->limitValue;
+            $sql = $sql . " limit " . $request->limitValue;
         }
 
         // echo $sql;
@@ -1484,7 +1484,7 @@ class NodeRevampController extends Controller
             $sql = $sql . " offset " . $request->offSetValue;
         }
         if ($request->limitValue != "") {
-            $sql = $sql . "limit " . $request->limitValue;
+            $sql = $sql . " limit " . $request->limitValue;
         }
         // echo $sql;
 
@@ -1537,7 +1537,7 @@ class NodeRevampController extends Controller
             $sql = $sql . " offset " . $request->offSetValue;
         }
         if ($request->limitValue != "") {
-            $sql = $sql . "limit " . $request->limitValue;
+            $sql = $sql . " limit " . $request->limitValue;
         }
         // echo $sql;
         $result = DB::select($sql);
