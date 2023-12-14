@@ -129,6 +129,8 @@ class NodeController extends Controller
                 $sql = $sql . " and (n1.name ilike '$request->searchval%' OR ns1.name ilike '$request->searchval%')"; // search with source node
                 // $sql = $sql . " and ns1.name ilike '%$request->searchval%' "; // search with synonym source node
             }
+
+            $sql = $sql . " and ndr.deleted=0";
             $sql = $sql . " order by source_node_name";
         }
         //  echo $sql;
@@ -179,16 +181,16 @@ class NodeController extends Controller
             if ($request->nnrt_id != "") {
                 $sql = $sql . " and nnrt_id = " . $request->nnrt_id; // pass node-node relation type id
             }
-            $sql = $sql . " and source_node<>destination_node "; //same node can't connect with itself";
+            $sql = $sql . " and source_node<>destination_node and deleted=0 "; //same node can't connect with itself";
             $sql = $sql . " ) ";
 
             if ($request->nnrt_id2 != "" && $request->nnrt_id2 != "undefined") {
                 $sql = $sql . " and nnrt_id = " . $request->nnrt_id2; // pass node-node relation type id
             }
 
-            $sql = $sql . " and source_node<>destination_node ";
+            $sql = $sql . " and source_node<>destination_node and ndr.deleted=0 ";
         }
-        //echo $sql;
+        // echo $sql;
         $result = DB::select($sql);
         return response()->json([
             'sourceNodeRecords2' => $result
@@ -209,7 +211,7 @@ class NodeController extends Controller
         else
         {
             $sql = "select distinct ns2.node_syn_id, ns2.name as syn_node_name, destination_node,n2.name as destination_node_name from graphs_new.node_edge_rels ndr join graphs_new.nodes n2 on ndr.destination_node=n2.node_id ";
-            $sql = $sql . " left join graphs_new.node_syns ns2 on n2.node_id=ns2.node_id"; //(Uncomment when destination_node_synonym name searched)";
+            $sql = $sql . " join graphs_new.node_syns ns2 on n2.node_id=ns2.node_id"; //(Uncomment when destination_node_synonym name searched)";
 
             $sql = $sql . " where 1=1";
 
@@ -223,6 +225,8 @@ class NodeController extends Controller
                 $sql = $sql . " and nnrt_id = " . $request->nnrt_id; // pass node-node relation type id
             }
             $sql = $sql . " and source_node<>destination_node "; //same node can't connect with itself";
+
+            $sql = $sql . " and ndr.deleted=0 "; //same node can't connect with itself";
             if ($request->searchval != "") {
                 $sql = $sql . " and (n2.name ilike '$request->searchval%' OR ns2.name ilike '$request->searchval%')"; //serach with destination node
                 // $sql = $sql . " and ns2.name ilike '%$request->searchval%' "; // search with synonym destination node
@@ -252,7 +256,7 @@ class NodeController extends Controller
         ]);
     }
 
-    public function getDestinationNode2(Request $request)
+    public function getDestinationNode2_old(Request $request)
     {
         if ($request->cameFromScenario == 1) { // if the came from scenario
             $sql = "select node_id, name as destination_node_name from graphs_new.nodes where 1=1 ";

@@ -246,6 +246,7 @@ class NodeRevampController extends Controller
                 $sql = $sql . " and edge_type_id in (" . $edgeType2Implode . ")"; //pass edge_type_id for Level 2 and above
 
             $sql = $sql . "order by destination_node_name";
+            // echo $sql;
         }
         // echo $sql;
 
@@ -1255,7 +1256,7 @@ class NodeRevampController extends Controller
         if (!empty($edgeTypeImplode))
             $sql = $sql . " and edge_type_id in (" . $edgeTypeImplode . ")"; //pass edge_type_id for Level 1
         
-        $sql = $sql ." group by 1,2,3,4,5,6) select * from graph_data";
+        $sql = $sql ." group by 1,2,3,4,5,6) select gd.sourcenode,gd.sourcenode_name,gd.destinationnode,gd.destinationnode_name,gd.level,gd.nnrt_id,gd.edge_type_ids,gd.ne_ids,gd.pmids,r.re_id,r.rank_score from graph_data gd left join graphs_new.ranks r on (gd.sourcenode=r.source_node and gd.destinationnode=r.destination_node and gd.nnrt_id=r.nnrt_id)";
 
         if ($request->offSetValue != "") {
             $sql = $sql . " offset " . $request->offSetValue;
@@ -1366,7 +1367,7 @@ class NodeRevampController extends Controller
             $sql = $sql . " and edge_type_id in (" . $edgeType2Implode . ")"; //pass edge_type_id for Level 2 and above
 
        
-        $sql = $sql ." group by 1,2,3,4,5,6) select * from graph_data";
+        $sql = $sql ." group by 1,2,3,4,5,6) select gd.sourcenode,gd.sourcenode_name,gd.destinationnode,gd.destinationnode_name,gd.level,gd.nnrt_id,gd.edge_type_ids,gd.ne_ids,gd.pmids, r.re_id,r.rank_score from graph_data gd left join graphs_new.ranks r on (gd.sourcenode=r.source_node and gd.destinationnode=r.destination_node and gd.nnrt_id=r.nnrt_id)";
        
         if ($request->offSetValue != "") {
             $sql = $sql . " offset " . $request->offSetValue;
@@ -1375,9 +1376,7 @@ class NodeRevampController extends Controller
         if ($request->limitValue != "") {
             $sql = $sql . " limit " . $request->limitValue;
         }
-
         // echo $sql;
-
         $result = DB::select($sql);
         return response()->json([
             'masterListsData' => $result
@@ -1478,7 +1477,7 @@ class NodeRevampController extends Controller
         if (!empty($edgeType3Implode))
             $sql = $sql . " and edge_type_id in (" . $edgeType3Implode . ")"; //pass edge_type_id for Level 3 and above
 
-        $sql = $sql ." group by 1,2,3,4,5,6) select * from graph_data";
+        $sql = $sql ." group by 1,2,3,4,5,6) select gd.sourcenode,gd.sourcenode_name,gd.destinationnode,gd.destinationnode_name,gd.level,gd.nnrt_id,gd.edge_type_ids,gd.ne_ids,gd.pmids, r.re_id,r.rank_score from graph_data gd left join graphs_new.ranks r on (gd.sourcenode=r.source_node and gd.destinationnode=r.destination_node and gd.nnrt_id=r.nnrt_id)";
        
         if ($request->offSetValue != "") {
             $sql = $sql . " offset " . $request->offSetValue;
@@ -1547,11 +1546,12 @@ class NodeRevampController extends Controller
     }
     //End details page
 
-    //2. Network Map Page
+    /////////////////////////*************** 2. START Network Map Page ******************* //////////////////
     public function getMasterListsMapRevampLevelOne(Request $request)
     {
-        $sql = "with  graph_data (sourcenode,destinationnode,level,nnrt_id,edge_type_id,ne_id) as (select distinct source_node,destination_node,1 as label ";//-- change 1 with 2 for level 2 and 3 for level 3 like this 
-        $sql = $sql. " ,nnrt_id,edge_type_id,ndr.id from graphs_new.node_edge_rels ndr where 1=1 AND ndr.deleted=0  ";
+        $sql = "with  graph_data (sourcenode,sourcenode_name,destinationnode,destinationnode_name,level,nnrt_id,edge_type_ids,ne_ids) as (select source_node,n1.name,destination_node,n2.name,1 as label, nnrt_id,array_agg(distinct edge_type_id),array_agg(distinct ndr.id) from graphs_new.node_edge_rels ndr join graphs_new.nodes n1 on ndr.source_node=n1.node_id join graphs_new.nodes n2 on ndr.destination_node=n2.node_id";//-- change 1 with 2 for level 2 and 3 for level 3 like this 
+        $sql = $sql. " where 1=1 ";
+        // $sql = $sql. " ,nnrt_id,edge_type_id,ndr.id from graphs_new.node_edge_rels ndr where 1=1 AND ndr.deleted=0  ";
 
         //1. Source Node level 1
         $sourceNodeId = '';
@@ -1588,7 +1588,16 @@ class NodeRevampController extends Controller
         if (!empty($edgeTypeImplode))
             $sql = $sql . " and edge_type_id in (" . $edgeTypeImplode . ")"; //pass edge_type_id for Level 1
         
-        $sql = $sql ." ),relevant_data (sourcenode,sourcenode_name,destinationnode,destinationnode_name,level,nntr_id,edge_type_ids) as (select gd.sourcenode,n1.name as source_node_name,gd.destinationnode,n2.name as destination_node_name,level,nnrt_id,array_agg(edge_type_id),array_agg(ne_id) as ne_ids from graph_data gd join graphs_new.nodes n1 on gd.sourcenode=n1.node_id join graphs_new.nodes n2 on gd.destinationnode=n2.node_id group by 1,2,3,4,5,6) select * from relevant_data rd";
+        $sql = $sql ." and ndr.deleted=0 group by 1,2,3,4,5,6)";
+        $sql = $sql ." select gd.sourcenode,gd.sourcenode_name,gd.destinationnode,gd.destinationnode_name,gd.level,gd.nnrt_id,gd.edge_type_ids,gd.ne_ids,r.rank_score from graph_data gd left join graphs_new.ranks r on (gd.sourcenode=r.source_node and gd.destinationnode=r.destination_node and gd.nnrt_id=r.nnrt_id) ";
+
+        //Rank select by default 1 selected
+        if($request->rank_select!= 'undefined'){
+            $rankSelect = collect($request->rank_select);
+            $rankSelectImplode = $rankSelect->implode(', ');
+            if (!empty($rankSelectImplode))
+            $sql = $sql . " WHERE rank_score in (" . $rankSelectImplode . ")"; //pass rank select
+        }
 
         // if ($request->offSetValue != "") {
         //     $sql = $sql . " offset " . $request->offSetValue;
@@ -1608,8 +1617,8 @@ class NodeRevampController extends Controller
 
     public function getMasterListsMapRevampLevelOneCount(Request $request)
     {
-        $sql = "with  graph_data (sourcenode,destinationnode,level,nnrt_id,edge_type_id,ne_id) as (select distinct source_node,destination_node,1 as label ";//-- change 1 with 2 for level 2 and 3 for level 3 like this 
-        $sql = $sql. " ,nnrt_id,edge_type_id,ndr.id from graphs_new.node_edge_rels ndr where 1=1 AND ndr.deleted=0  ";
+        $sql = "with  graph_data (sourcenode,sourcenode_name,destinationnode,destinationnode_name,level,nnrt_id,edge_type_ids,ne_ids) as (select source_node,n1.name,destination_node,n2.name,1 as label, nnrt_id,array_agg(distinct edge_type_id),array_agg(distinct ndr.id) from graphs_new.node_edge_rels ndr join graphs_new.nodes n1 on ndr.source_node=n1.node_id join graphs_new.nodes n2 on ndr.destination_node=n2.node_id";//-- change 1 with 2 for level 2 and 3 for level 3 like this 
+        $sql = $sql. " where 1=1 ";
 
         //1. Source Node level 1
         $sourceNodeId = '';
@@ -1646,7 +1655,9 @@ class NodeRevampController extends Controller
         if (!empty($edgeTypeImplode))
             $sql = $sql . " and edge_type_id in (" . $edgeTypeImplode . ")"; //pass edge_type_id for Level 1
         
-        $sql = $sql ." ),relevant_data (sourcenode,sourcenode_name,destinationnode,destinationnode_name,level,nntr_id,edge_type_ids) as (select gd.sourcenode,n1.name as source_node_name,gd.destinationnode,n2.name as destination_node_name,level,nnrt_id,array_agg(edge_type_id),array_agg(ne_id) as ne_ids from graph_data gd join graphs_new.nodes n1 on gd.sourcenode=n1.node_id join graphs_new.nodes n2 on gd.destinationnode=n2.node_id group by 1,2,3,4,5,6) select count(*) as count from relevant_data rd";
+        $sql = $sql ." and ndr.deleted=0 group by 1,2,3,4,5,6)";
+        $sql = $sql ." select count (1) from graph_data ";
+
         // echo $sql;
         $result = DB::select($sql);
         return response()->json([
@@ -1656,8 +1667,8 @@ class NodeRevampController extends Controller
 
     public function getMasterListsMapRevampLevelTwo(Request $request)
     {
-        $sql = "with  graph_data (sourcenode,destinationnode,level,nnrt_id,edge_type_id,ne_id) as (select distinct source_node,destination_node,2 as label ";//-- change 1 with 2 for level 2 and 3 for level 3 like this 
-        $sql = $sql. " ,nnrt_id,edge_type_id,ndr.id from graphs_new.node_edge_rels ndr where 1=1 AND ndr.deleted=0  ";
+        $sql = "with  graph_data (sourcenode,sourcenode_name,destinationnode,destinationnode_name,level,nnrt_id,edge_type_ids,ne_ids) as (select source_node,n1.name,destination_node,n2.name,2 as label, nnrt_id,array_agg(distinct edge_type_id),array_agg(distinct ndr.id) from graphs_new.node_edge_rels ndr join graphs_new.nodes n1 on ndr.source_node=n1.node_id join graphs_new.nodes n2 on ndr.destination_node=n2.node_id";//-- change 1 with 2 for level 2 and 3 for level 3 like this 
+        $sql = $sql. " where 1=1 ";
 
         //1. Source Node level 1
         $sourceNodeId = '';
@@ -1692,8 +1703,16 @@ class NodeRevampController extends Controller
         if (!empty($edgeType2Implode))
             $sql = $sql . " and edge_type_id in (" . $edgeType2Implode . ")"; //pass edge_type_id for Level 2 and above
 
-        $sql = $sql ." ),relevant_data (sourcenode,sourcenode_name,destinationnode,destinationnode_name,level,nntr_id,edge_type_ids) as (select gd.sourcenode,n1.name as source_node_name,gd.destinationnode,n2.name as destination_node_name,level,nnrt_id,array_agg(edge_type_id),array_agg(ne_id) as ne_ids from graph_data gd join graphs_new.nodes n1 on gd.sourcenode=n1.node_id join graphs_new.nodes n2 on gd.destinationnode=n2.node_id group by 1,2,3,4,5,6) select * from relevant_data rd";
-       
+        $sql = $sql ." and ndr.deleted=0 group by 1,2,3,4,5,6)";
+        $sql = $sql ." select gd.sourcenode,gd.sourcenode_name,gd.destinationnode,gd.destinationnode_name,gd.level,gd.nnrt_id,gd.edge_type_ids,gd.ne_ids,r.rank_score from graph_data gd left join graphs_new.ranks r on (gd.sourcenode=r.source_node and gd.destinationnode=r.destination_node and gd.nnrt_id=r.nnrt_id)";
+
+        //Rank select by default 1 selected
+        if($request->rank_select!= 'undefined'){
+            $rankSelect = collect($request->rank_select);
+            $rankSelectImplode = $rankSelect->implode(', ');
+            if (!empty($rankSelectImplode))
+            $sql = $sql . " WHERE rank_score in (" . $rankSelectImplode . ")"; //pass rank select
+        }
         // if ($request->offSetValue != "") {
         //     $sql = $sql . " offset " . $request->offSetValue;
         // }
@@ -1712,8 +1731,8 @@ class NodeRevampController extends Controller
 
     public function getMasterListsMapRevampLevelTwoCount(Request $request)
     {
-        $sql = "with  graph_data (sourcenode,destinationnode,level,nnrt_id,edge_type_id,ne_id) as (select distinct source_node,destination_node,2 as label ";//-- change 1 with 2 for level 2 and 3 for level 3 like this 
-        $sql = $sql. " ,nnrt_id,edge_type_id,ndr.id from graphs_new.node_edge_rels ndr where 1=1 AND ndr.deleted=0  ";
+        $sql = "with  graph_data (sourcenode,sourcenode_name,destinationnode,destinationnode_name,level,nnrt_id,edge_type_ids,ne_ids) as (select source_node,n1.name,destination_node,n2.name,2 as label, nnrt_id,array_agg(distinct edge_type_id),array_agg(distinct ndr.id) from graphs_new.node_edge_rels ndr join graphs_new.nodes n1 on ndr.source_node=n1.node_id join graphs_new.nodes n2 on ndr.destination_node=n2.node_id";//-- change 1 with 2 for level 2 and 3 for level 3 like this 
+        $sql = $sql. " where 1=1 ";
 
         //1. Source Node level 1
         $sourceNodeId = '';
@@ -1731,7 +1750,7 @@ class NodeRevampController extends Controller
             $destinationNode2 = collect($request->destination_node2);
             $destinationNodeImplode2 = $destinationNode2->implode(', ');
             if (!empty($destinationNodeImplode2))
-                $sql = $sql . " and destination_node in (" . $destinationNodeImplode2 . ")"; // pass destination node level 2
+                $sql = $sql . " and destination_node in (" . $destinationNodeImplode2 . ")"; // pass destination node level 2        
         }
 
         //3. Node select level 2
@@ -1748,8 +1767,8 @@ class NodeRevampController extends Controller
         if (!empty($edgeType2Implode))
             $sql = $sql . " and edge_type_id in (" . $edgeType2Implode . ")"; //pass edge_type_id for Level 2 and above
 
-        $sql = $sql ." ),relevant_data (sourcenode,sourcenode_name,destinationnode,destinationnode_name,level,nntr_id,edge_type_ids) as (select gd.sourcenode,n1.name as source_node_name,gd.destinationnode,n2.name as destination_node_name,level,nnrt_id,array_agg(edge_type_id),array_agg(ne_id) as ne_ids from graph_data gd join graphs_new.nodes n1 on gd.sourcenode=n1.node_id join graphs_new.nodes n2 on gd.destinationnode=n2.node_id group by 1,2,3,4,5,6) select count(*) as count from relevant_data rd";
-        // echo $sql;
+        $sql = $sql ." and ndr.deleted=0 group by 1,2,3,4,5,6)";
+        $sql = $sql ." select count (1) from graph_data ";
 
         $result = DB::select($sql);
         return response()->json([
@@ -1759,8 +1778,8 @@ class NodeRevampController extends Controller
 
     public function getMasterListsMapRevampLevelThree(Request $request)
     {
-        $sql = "with  graph_data (sourcenode,destinationnode,level,nnrt_id,edge_type_id,ne_id) as (select distinct source_node,destination_node,3 as label ";//-- change 1 with 2 for level 2 and 3 for level 3 like this 
-        $sql = $sql. " ,nnrt_id,edge_type_id,ndr.id from graphs_new.node_edge_rels ndr where 1=1 AND ndr.deleted=0  ";
+        $sql = "with  graph_data (sourcenode,sourcenode_name,destinationnode,destinationnode_name,level,nnrt_id,edge_type_ids,ne_ids) as (select source_node,n1.name,destination_node,n2.name,3 as label, nnrt_id,array_agg(distinct edge_type_id),array_agg(distinct ndr.id) from graphs_new.node_edge_rels ndr join graphs_new.nodes n1 on ndr.source_node=n1.node_id join graphs_new.nodes n2 on ndr.destination_node=n2.node_id";//-- change 1 with 2 for level 2 and 3 for level 3 like this 
+        $sql = $sql. " where 1=1 ";
 
         $sourceNodeId = '';
         if (!empty($request->node_id)) {
@@ -1794,8 +1813,16 @@ class NodeRevampController extends Controller
         if (!empty($edgeType3Implode))
             $sql = $sql . " and edge_type_id in (" . $edgeType3Implode . ")"; //pass edge_type_id for Level 3 and above
 
-        $sql = $sql ." ),relevant_data (sourcenode,sourcenode_name,destinationnode,destinationnode_name,level,nntr_id,edge_type_ids) as (select gd.sourcenode,n1.name as source_node_name,gd.destinationnode,n2.name as destination_node_name,level,nnrt_id,array_agg(edge_type_id),array_agg(ne_id) as ne_ids from graph_data gd join graphs_new.nodes n1 on gd.sourcenode=n1.node_id join graphs_new.nodes n2 on gd.destinationnode=n2.node_id group by 1,2,3,4,5,6) select * from relevant_data rd";
-       
+        $sql = $sql ." and ndr.deleted=0 group by 1,2,3,4,5,6)";
+        $sql = $sql ." select gd.sourcenode,gd.sourcenode_name,gd.destinationnode,gd.destinationnode_name,gd.level,gd.nnrt_id,gd.edge_type_ids,gd.ne_ids,r.rank_score from graph_data gd left join graphs_new.ranks r on (gd.sourcenode=r.source_node and gd.destinationnode=r.destination_node and gd.nnrt_id=r.nnrt_id) ";
+
+        //Rank select by default 1 selected
+        if($request->rank_select!= 'undefined'){
+            $rankSelect = collect($request->rank_select);
+            $rankSelectImplode = $rankSelect->implode(', ');
+            if (!empty($rankSelectImplode))
+            $sql = $sql . " WHERE rank_score in (" . $rankSelectImplode . ")"; //pass rank select
+        }
         // if ($request->offSetValue != "") {
         //     $sql = $sql . " offset " . $request->offSetValue;
         // }
@@ -1814,8 +1841,8 @@ class NodeRevampController extends Controller
 
     public function getMasterListsMapRevampLevelThreeCount(Request $request)
     {
-        $sql = "with  graph_data (sourcenode,destinationnode,level,nnrt_id,edge_type_id,ne_id) as (select distinct source_node,destination_node,3 as label ";//-- change 1 with 2 for level 2 and 3 for level 3 like this 
-        $sql = $sql. " ,nnrt_id,edge_type_id,ndr.id from graphs_new.node_edge_rels ndr where 1=1 AND ndr.deleted=0  ";
+        $sql = "with  graph_data (sourcenode,sourcenode_name,destinationnode,destinationnode_name,level,nnrt_id,edge_type_ids,ne_ids) as (select source_node,n1.name,destination_node,n2.name,3 as label, nnrt_id,array_agg(distinct edge_type_id),array_agg(distinct ndr.id) from graphs_new.node_edge_rels ndr join graphs_new.nodes n1 on ndr.source_node=n1.node_id join graphs_new.nodes n2 on ndr.destination_node=n2.node_id";//-- change 1 with 2 for level 2 and 3 for level 3 like this 
+        $sql = $sql. " where 1=1 ";
 
         $sourceNodeId = '';
         if (!empty($request->node_id)) {
@@ -1826,14 +1853,14 @@ class NodeRevampController extends Controller
         $sourceNode3 = collect($request->source_node3);
         $sourceNodeImplode3 = $sourceNode3->implode(', ');
         if (!empty($sourceNodeImplode3))
-            $sql = $sql . " and source_node in (" . $sourceNodeImplode3 . $sourceNodeId.")"; // pass source node level 2 
+            $sql = $sql . " and source_node in (" . $sourceNodeImplode3 . $sourceNodeId.")"; // pass source node level 3 
 
         //2. Destination Node level3
         if($request->destination_node_all3 != 1){
             $destinationNode3 = collect($request->destination_node3);
             $destinationNodeImplode3 = $destinationNode3->implode(', ');
             if (!empty($destinationNodeImplode3))
-                $sql = $sql . " and destination_node in (" . $destinationNodeImplode3 . ")"; // pass destination node level 2
+                $sql = $sql . " and destination_node in (" . $destinationNodeImplode3 . ")"; // pass destination node level 3       
         }
 
         //3. Node select level 3
@@ -1846,11 +1873,11 @@ class NodeRevampController extends Controller
         //4. Edge level 3
         $edgeType3 = collect($request->edge_type_id3);
         $edgeType3Implode = $edgeType3->implode(', ');
-        // echo "heree3: " . $edgeTypeImplode;
         if (!empty($edgeType3Implode))
             $sql = $sql . " and edge_type_id in (" . $edgeType3Implode . ")"; //pass edge_type_id for Level 3 and above
 
-        $sql = $sql ." ),relevant_data (sourcenode,sourcenode_name,destinationnode,destinationnode_name,level,nntr_id,edge_type_ids) as (select gd.sourcenode,n1.name as source_node_name,gd.destinationnode,n2.name as destination_node_name,level,nnrt_id,array_agg(edge_type_id),array_agg(ne_id) as ne_ids from graph_data gd join graphs_new.nodes n1 on gd.sourcenode=n1.node_id join graphs_new.nodes n2 on gd.destinationnode=n2.node_id group by 1,2,3,4,5,6) select count(*) as count from relevant_data rd";
+        $sql = $sql ." and ndr.deleted=0 group by 1,2,3,4,5,6)";
+        $sql = $sql ." select count (1) from graph_data ";
         // echo $sql;
 
         $result = DB::select($sql);
@@ -1858,6 +1885,7 @@ class NodeRevampController extends Controller
             'masterListsData' => $result
         ]);
     }
+     /////////////////////////*************** 2. END Network Map Page ******************* //////////////////
 
     ////////////////// ************** Visual Charts for Second Graph *******************////////////////////////
     
@@ -2308,9 +2336,9 @@ class NodeRevampController extends Controller
             if ($request->nnrt_id3 != "" && $request->nnrt_id3 != "undefined") {
                 $sql = $sql . " and nnrt_id = " . $request->nnrt_id3; // pass node-node relation type id
             }
-            $sql = $sql . " and source_node<>destination_node ";
+            $sql = $sql . " and source_node<>destination_node and ndr.deleted=0 ";
         }
-        // echo $sql;
+        echo $sql;
         $result = DB::select($sql);
         return response()->json([
             'sourceNodeRecords3' => $result
