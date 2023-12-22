@@ -757,7 +757,7 @@ class NodeController extends Controller
                 a.ne_id in (".$ne_id.")
                 and a.pubmed_id in (".$pubmed_id.")";
                 //"and a.rel_extract_id!= 1" 
-        echo $sql;
+        // echo $sql;
         $result = DB::select($sql);
         return response()->json([
             'evidence_data' => $result
