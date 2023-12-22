@@ -120,3 +120,5 @@ Route::post('/getEdgeTypeSce3', [NodeRevampController::class, 'getEdgeTypeSce3']
 
 Route::post('/getUserArticleSentencesDashboard', [ScenarioController::class, 'getUserArticleSentencesDashboard']);
 Route::post('/delArticleSentencesScenario', [ScenarioController::class, 'delArticleSentencesScenario']);
+Route::post('/getConceptIdByNode', [NodeRevampController::class, 'getConceptIdByNode']);
+Route::post('/getUmlsDataByConceptIds', [NodeRevampController::class, 'getUmlsDataByConceptIds']);

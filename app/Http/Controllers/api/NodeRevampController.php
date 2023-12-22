@@ -702,7 +702,7 @@ class NodeRevampController extends Controller
         ]);
     }
 
-    public function getEvidenceData(Request $request){
+    public function getEvidenceData_old(Request $request){
         $ne_id = $request->ne_id;
         $pubmed_id = $request->pubmed_id;
         //$sql = "select evidence_data from graphs_new.evidence_metadata_details where ne_id in (208567)";
@@ -717,7 +717,7 @@ class NodeRevampController extends Controller
                 and 
                 b.rel_extract_id = a.rel_extract_id";
                 //"and a.rel_extract_id!= 1" 
-        // echo $sql;
+        echo $sql;
         $result = DB::select($sql);
         return response()->json([
             'evidence_data' => $result
@@ -2472,6 +2472,78 @@ class NodeRevampController extends Controller
         return response()->json([
             'data' => $result
         ]);
+    }
+
+    public function getConceptIdByNode(Request $request)
+    {
+        $sql = "select concept_id from graphs_new.node_umls_concept_rel where node_id = $request->node_ids ";
+        // echo $sql;
+        $result = DB::select($sql);
+        return response()->json([
+            'conceptIds' => $result
+        ]);
+    }
+    public function getUmlsDataByConceptIds(Request $request)
+    {
+        // $data_array = array("news_id" => $request->input('news_id'), "news_text" => pg_escape_string($request->input('news_text')));
+
+        $data_array = $request->input('conceptIds');
+        // print_r($data_array);
+
+        $method = "POST";
+        $url = "https://uts-ws.nlm.nih.gov/rest/content/current/CUI/";
+        $data = $data_array;
+        // $data = json_encode($data_array);
+        // $data = $request->conceptIds;
+        // print_r($data);
+
+
+        $curl = curl_init();
+        switch ($method) {
+            case "POST":
+                curl_setopt($curl, CURLOPT_POST, 1);
+                if ($data)
+                    curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+                break;
+            case "PUT":
+                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, "PUT");
+                if ($data)
+                    curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+                break;
+            default:
+                if ($data)
+                    $url = sprintf("%s?%s", $url, http_build_query($data));
+        }
+
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt(
+            $curl,
+            CURLOPT_HTTPHEADER,
+            array(
+                'APIKEY: b238480d-ef87-4755-a67c-92734e4dcfe8',
+                'Content-Type: application/json',
+            )
+        );
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($curl, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
+
+        // EXECUTE:
+        $result = curl_exec($curl);
+        if (!$result) {
+            die("Connection Failure");
+        }
+        curl_close($curl);
+        $make_call = $result;
+        // return $result;
+
+        $arrayResponse = json_decode($make_call, true);
+        echo "<pre>";
+        print_r($arrayResponse);
+        echo "</pre>";
+
+        // return response()->json([
+        //     'umlsRecords' => $arrayResponse
+        // ]);
     }
 
 }
