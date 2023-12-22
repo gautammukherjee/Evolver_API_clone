@@ -717,7 +717,7 @@ class NodeRevampController extends Controller
                 and 
                 b.rel_extract_id = a.rel_extract_id";
                 //"and a.rel_extract_id!= 1" 
-        echo $sql;
+        // echo $sql;
         $result = DB::select($sql);
         return response()->json([
             'evidence_data' => $result
