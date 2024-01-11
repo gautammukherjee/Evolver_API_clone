@@ -2476,7 +2476,7 @@ class NodeRevampController extends Controller
 
     public function getConceptIdByNode(Request $request)
     {
-        $sql = "select distinct concept_id from graphs_new.node_umls_concept_rel where node_id = $request->node_ids ";
+        $sql = "select nuc_id, concept_id from graphs_new.node_umls_concept_rel where node_id = $request->node_ids ";
         // echo $sql;
         $result = DB::select($sql);
         return response()->json([
