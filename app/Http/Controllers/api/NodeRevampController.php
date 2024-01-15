@@ -2483,6 +2483,27 @@ class NodeRevampController extends Controller
             'conceptIds' => $result
         ]);
     }
-    //test
+
+    
+    //PMID Search data
+    public function getPMIDSearchData(Request $request)
+    {
+        $sql = "with ref_list (ne_id) as (select ne_id from graphs_new.node_edge_sci_lit_rels neslr where 1=1";
+        if ($request->pmid_value != "") {
+            $sql = $sql . " and neslr.pmid= ".$request->pmid_value.")";
+        }        
+        $sql = $sql . " select ner.id,nnrt.nnrt_id,nnrt.name as pair_type,ner.source_node,n1.name as source_node_name,ner.destination_node,n1.name as destination_node_name,et.edge_type_id,et.name as edge_type_name from graphs_new.node_edge_rels ner join graphs_new.nodes n1 on ner.source_node=n1.node_id join graphs_new.nodes n2 on ner.destination_node=n2.node_id join graphs_new.edge_types et on ner.edge_type_id=et.edge_type_id join graphs_new.node_node_relation_types nnrt on ner.nnrt_id=nnrt.nnrt_id where ner.id in (select ne_id from ref_list)";
+        
+        if ($request->pair_type != "") {
+            $sql = $sql . " and ner.nnrt_id = ".$request->pair_type; //-- pass nnrt_id here
+        }
+        // $sql = $sql . " offset 0 limit 500 ";
+        // $sql = $sql." order by sr_no";
+        // echo $sql;
+        $result = DB::select($sql);
+        return response()->json([
+            'nodeSelectsRecords' => $result
+        ]);
+    }
 
 }
