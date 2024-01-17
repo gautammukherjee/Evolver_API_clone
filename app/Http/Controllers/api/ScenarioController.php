@@ -86,15 +86,16 @@ class ScenarioController extends Controller
             $path = storage_path('app/public/'.$scenario->user_id['user_id']);
             // $path = storage_path('app/public/');            
             $file = fopen($path.$csvFileName, 'w');
-            $columns = array('news_id', 'sourcenode', 'destinationnode','level','PMIDCount');
+            $columns = array('news_id', 'sourcenode', 'destinationnode','level','PMIDCount','RankScore');
             fputcsv($file, $columns);
             foreach ($scenario['result_data_set'] as $product) {
                 $row['news_id']  = $product['news_id'];
                 $row['sourcenode']  = $product['sourcenode'];
                 $row['destinationnode']  = $product['destinationnode'];
                 $row['level']  = $product['level'];
-                $row['PMIDCount']  = $product['PMIDCount'];                
-                fputcsv($file, array($row['news_id'], $row['sourcenode'], $row['destinationnode'], $row['level'], $row['PMIDCount'] ));
+                $row['PMIDCount']  = $product['PMIDCount'];              
+                $row['RankScore']  = $product['RankScore'];
+                fputcsv($file, array($row['news_id'], $row['sourcenode'], $row['destinationnode'], $row['level'], $row['PMIDCount'], $row['RankScore'] ));
             }
 
             fclose($file);
@@ -160,7 +161,7 @@ class ScenarioController extends Controller
 
 
         $sql = "UPDATE scenarios SET uploaded_file_url='".$fileUrl."' where id='".$scenario->scenario_id."' and user_id = '".$scenario->user_id['user_id']."' ";
-        // echo $sql;
+        echo $sql;
         
         $result = DB::connection('pgsql2')->select($sql);
         return response()->json([
