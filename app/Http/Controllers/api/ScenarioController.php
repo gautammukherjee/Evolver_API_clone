@@ -262,4 +262,22 @@ class ScenarioController extends Controller
         ]);
     }
 
+    //Get Per User Scenario Count
+    public function getPerUserSentenceScenarios(Request $request)
+    {
+        // $userId = auth()->user()->id;
+        $userId = $request->user_id;
+        // $email = $request->email;
+        // $password = md5($request->password);
+        $sql = "select count(*) as count FROM article_sentences_dashboard as s WHERE s.deleted = 0 and s.user_id =".$userId;
+        // echo $sql;
+        $result = DB::connection('pgsql2')->select($sql);
+        // print_r($result);
+        
+        // $result = DB::select($sql);
+        return response()->json([
+            'totalSentenceScenariosPerUser' => $result
+        ]);
+    }
+
 }

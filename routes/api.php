@@ -104,6 +104,7 @@ Route::post('/getDestinationNode3', [NodeRevampController::class, 'getDestinatio
 
 //Save Scenario in details page
 Route::post('/getPerUserScenarios', [ScenarioController::class, 'getPerUserScenarios']);
+Route::post('/getPerUserSentenceScenarios', [ScenarioController::class, 'getPerUserSentenceScenarios']);
 Route::post('/addUserScenario', [ScenarioController::class, 'addUserScenario']);
 
 Route::post('/updateUserScenario', [ScenarioController::class, 'updateUserScenario'])->name('store.file');
