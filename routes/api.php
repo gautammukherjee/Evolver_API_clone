@@ -56,12 +56,21 @@ Route::post('/getSourceNode2', [NodeController::class, 'getSourceNode2']);
 // Route::post('/getDestinationNode2', [NodeController::class, 'getDestinationNode2']);
 Route::post('/getPMIDListsInRelation', [NodeController::class, 'getPMIDListsInRelation']);
 Route::post('/getEdgePMIDCount', [NodeController::class, 'getEdgePMIDCount']);
-Route::post('/getCTDiseaseAssoc', [NodeController::class, 'getCTDiseaseAssoc']);
-Route::post('/getCTTrialInvestRels', [NodeController::class, 'getCTTrialInvestRels']);
-Route::post('/getCTInvestigatorName', [NodeController::class, 'getCTInvestigatorName']);
-Route::post('/getCTInvestigatorRole', [NodeController::class, 'getCTInvestigatorRole']);
-Route::post('/getCTInvestigatorCountry', [NodeController::class, 'getCTInvestigatorCountry']);
-Route::post('/getCTInvestigatorRelsByStats', [NodeController::class, 'getCTInvestigatorRelsByStats']);
+
+// Route::post('/getCTDiseaseAssoc', [NodeController::class, 'getCTDiseaseAssoc']);
+// Route::post('/getCTTrialInvestRels', [NodeController::class, 'getCTTrialInvestRels']);
+// Route::post('/getCTInvestigatorName', [NodeController::class, 'getCTInvestigatorName']);
+// Route::post('/getCTInvestigatorRole', [NodeController::class, 'getCTInvestigatorRole']);
+// Route::post('/getCTInvestigatorCountry', [NodeController::class, 'getCTInvestigatorCountry']);
+// Route::post('/getCTInvestigatorRelsByStats', [NodeController::class, 'getCTInvestigatorRelsByStats']);
+
+Route::post('/getCTDiseaseAssoc_new', [NodeRevampController::class, 'getCTDiseaseAssoc_new']);
+Route::post('/getCTTrialInvestRels_new', [NodeRevampController::class, 'getCTTrialInvestRels_new']);
+Route::post('/getCTInvestigatorName_new', [NodeRevampController::class, 'getCTInvestigatorName_new']);
+Route::post('/getCTInvestigatorRole_new', [NodeRevampController::class, 'getCTInvestigatorRole_new']);
+Route::post('/getCTInvestigatorCountry_new', [NodeRevampController::class, 'getCTInvestigatorCountry_new']);
+Route::post('/getCTInvestigatorRelsByStats_new', [NodeRevampController::class, 'getCTInvestigatorRelsByStats_new']);
+
 
 //////////////// For revamp //////////////////////////
 // 1. Details Page

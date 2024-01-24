@@ -777,8 +777,8 @@ class NodeController extends Controller
             $count = count($scenario['result_data_set']);
             // echo $count;
             $sql = "INSERT INTO article_sentences_dashboard (user_id,name,description, resultset) 
-            values ('".$scenario->user_id['user_id']."','".$scenario->filter1_name."','".$scenario->user1_comments."','".json_encode(($scenario['result_data_set']))."')";
-            // echo $sql;
+            values ('".$scenario->user_id['user_id']."','".$scenario->filter1_name."','".$scenario->user1_comments."','".pg_escape_string(json_encode(($scenario['result_data_set'])))."')";
+            // echo "First Insert: ".$sql;
             
             $result = DB::connection('pgsql2')->select($sql);
             $lastId = DB::connection('pgsql2')->getPdo()->lastInsertId(); // get the last inserted id
@@ -884,6 +884,8 @@ class NodeController extends Controller
             // echo "fileUrl: ".$resultUploadedFileUrl;
 
             $newJsondata = json_encode($scenario['result_data_set']);
+            // echo "<pre>";
+            // print_r($newJsondata);
 
             $finalJsonData = json_encode(
                 array_merge(
@@ -895,8 +897,8 @@ class NodeController extends Controller
             $count = count(json_decode($finalJsonData));
 
             //Start here to update the new json into table and write the csv file and insert into S3 bucket
-            $sql3 = "UPDATE article_sentences_dashboard set description='".$scenario->user1_comments."', resultset = '".$finalJsonData."' WHERE id=".$scenario->scenario_exist_id;
-            // echo $sql;
+            $sql3 = "UPDATE article_sentences_dashboard set description='".$scenario->user1_comments."', resultset = '".pg_escape_string($finalJsonData)."' WHERE id=".$scenario->scenario_exist_id;
+            // echo "Update here: ". $sql3;
 
             $result = DB::connection('pgsql2')->select($sql3);
             // $lastId = DB::connection('pgsql2')->getPdo()->lastInsertId(); // get the last inserted id

@@ -2505,4 +2505,102 @@ class NodeRevampController extends Controller
         ]);
     }
 
+
+
+
+    //1 CT API
+    public function getCTDiseaseAssoc_new(Request $request)
+    {
+        // $sql2 = "select distinct destination_node as selected_nodes from graphs_new.node_edge_rels ner WHERE deleted=0 ";
+        // if ($request->nnrt_id != "") {
+        //     $sql2 = $sql2 . " and nnrt_id = $request->nnrt_id ";
+        // }
+
+        // $edgeType = collect($request->edge_type_id);
+        // $edgeTypeImplode = $edgeType->implode(', ');
+        // if (!empty($edgeTypeImplode))
+        //     $sql2 = $sql2 . " AND edge_type_id in (" . $edgeTypeImplode . ")"; //pass edge_type_id for Level 1
+
+        // $sourceNode = collect($request->source_node);
+        // $sourceNodeImplode = $sourceNode->implode(', ');
+        // if(!empty($sourceNodeImplode)){
+        //     $sql2 = $sql2 . " and source_node in (".$sourceNodeImplode.")";
+        // }
+        // // echo $sql2;
+
+        // $result2 = DB::select($sql2);
+        // $destinationNodes_ids = array();
+        // foreach ($result2 as $value) {
+        //     $destinationNodes_ids[] = $value->selected_nodes;
+        // }
+        // $destinationNodesId = collect($destinationNodes_ids);
+        // $destinationNodesIdRelevantIds = $destinationNodesId->implode(', ');
+
+        // $destinationNode = collect($request->destination_node);
+        // $destinationNodeImplode = $destinationNode->implode(', ');
+
+        // if(empty($destinationNodeImplode)){ //////////// IF destination node empty////////////////
+        //     if(count($destinationNodes_ids) > 0){
+        //         return response()->json([
+        //             'CTDATA' => $destinationNodesIdRelevantIds,
+        //             "count: "=> count($destinationNodes_ids)
+        //         ]);
+        //     }
+        // }else{ //////////// IF destination node not empty////////////////
+        //     return response()->json([
+        //         'CTDATA' => $destinationNodeImplode,
+        //         "count: "=> count($request->destination_node)
+        //     ]);
+        // }
+
+
+        $sql = "with cte (ct_id,node_id,name) as (select ctdr.ct_id,ctdr.node_id,n.name from graphs_new.clinical_trial_disease_rels ctdr ";
+        $sql = $sql ." join graphs_new.nodes n on ctdr.node_id=n.node_id where ctdr.node_id in (select source_node from graphs_new.node_edge_rels ner where 1=1 ";
+
+        $sourceNode = collect($request->source_node);
+        $sourceNodeImplode = $sourceNode->implode(', ');
+        if(!empty($sourceNodeImplode)){
+            $sql = $sql . " and source_node in (".$sourceNodeImplode.")";
+        }
+
+        if ($request->nnrt_id != "") {
+            $sql = $sql . " and nnrt_id = $request->nnrt_id ";
+        }
+
+        $sql = $sql . " and deleted=0 )"; //-- just for reference pass here desired source node_id list!
+
+        $sql = $sql . "or ctdr.node_id in (select destination_node from graphs_new.node_edge_rels ner where 1=1 "; 
+
+        if ($request->nnrt_id != "") {
+            $sql = $sql . " and nnrt_id = $request->nnrt_id ";
+        }
+        $edgeType = collect($request->edge_type_id);
+        $edgeTypeImplode = $edgeType->implode(', ');
+        if (!empty($edgeTypeImplode))
+            $sql2 = $sql2 . " and edge_type_id in (" . $edgeTypeImplode . ")"; //pass edge_type_id for Level 1
+
+        $sourceNode = collect($request->source_node);
+        $sourceNodeImplode = $sourceNode->implode(', ');
+        if(!empty($sourceNodeImplode)){
+            $sql = $sql . " and source_node in (".$sourceNodeImplode.")";
+        }
+
+        $destinationNode = collect($request->destination_node);
+        $destinationNodeImplode = $destinationNode->implode(', ');
+        if(!empty($destinationNodeImplode)){
+            $sql = $sql . " and destination_node in (".$destinationNodeImplode.")";
+        }
+
+        $sql = $sql . " and deleted=0 )"; //-- just for reference pass here desired destination node_id list!
+        $sql = $sql . "),reference_data (node_id,disease_name,ct_id,nct_id,org_study_id,secondary_study_id,title,overall_status, phase_id,phase_name,has_expanded_access,minimum_age,maximum_age,healthy_volunteers,verification_date,study_first_submitted,study_first_posted,last_update_submitted,last_update_submitted_qc,study_type,gender,study_first_submitted_qc,trial_design) as(select c.node_id,c.name as disease_name,ct.ct_id,ct.nct_id,ct.org_study_id,ct.secondary_study_id,ct.title,ct.overall_status,ct.phase_id,pm.name as phase_name,ct.has_expanded_access,ct.minimum_age,ct.maximum_age,ct.healthy_volunteers,ct.verification_date,ct.study_first_submitted,ct.study_first_posted,ct.last_update_submitted,ct.last_update_submitted_qc,ct.study_type,ct.gender,ct.study_first_submitted_qc,ct.trial_design from cte c join source_new.clinical_trial ct on c.ct_id=ct.ct_id join ontology.phase_master pm on ct.phase_id=pm.phase_id) select rd.* from reference_data rd";
+
+        echo $sql;
+
+        $result = DB::select($sql);
+        return response()->json([
+            'CTDATA' => $result
+        ]);
+    }
+
+
 }
