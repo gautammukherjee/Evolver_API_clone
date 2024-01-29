@@ -2538,7 +2538,7 @@ class NodeRevampController extends Controller
         if(!empty($sourceNodeImplode)){
             $sql2 = $sql2 . " and source_node in (".$sourceNodeImplode.")";
         }
-        $sql2 = $sql2 . " LIMIT 125";
+        $sql2 = $sql2 . " LIMIT 100";
         // echo $sql2;
 
         $result2 = DB::select($sql2);
