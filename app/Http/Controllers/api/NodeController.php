@@ -46,6 +46,21 @@ class NodeController extends Controller
         ]);
     }
 
+    //FOT CT
+    public function getNodeSelectsCT(Request $request)
+    {
+        $sql = "select nnrt_id,name as pair_name,sr_no from graphs_new.node_node_relation_types where deleted=0 and nnrt_id in (26,29)  ";
+        if ($request->cameFromScenario == 1) {
+            $sql = $sql . " and nnrt_id = " . $request->nnrt_id; // pass node-node relation type id
+        }
+        $sql = $sql." order by sr_no";
+        // echo $sql;
+        $result = DB::select($sql);
+        return response()->json([
+            'nodeSelectsRecordsCT' => $result
+        ]);
+    }
+
     public function getNodeSelects2(Request $request)
     {
         $sql = "select nnrt_id,name as pair_name from graphs_new.node_node_relation_types where deleted=0 ";

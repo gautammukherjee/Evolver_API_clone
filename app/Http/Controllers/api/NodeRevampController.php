@@ -1068,7 +1068,15 @@ class NodeRevampController extends Controller
         $sourceNode = collect($request->source_node);
         $sourceNodeImplode = $sourceNode->implode(', ');  
 
-        $sql2 = "with cte (source_node, destination_node) as (select distinct source_node, destination_node FROM graphs_new.node_edge_rels WHERE 1=1 AND deleted=0 ";
+        $sql = "with cte (ct_id) as (select distinct ctdr.ct_id from graphs_new.clinical_trial_disease_rels ctdr where 1=1";
+        
+        $sql = $sql . "ctdr.node_id in (10508013)"; //-- just for reference pass here desired  node_id list in case you have! (COMBINED DATA)
+        
+        $sql = $sql ."),reference_data (country_id,country,country_code,count_investigator_ids) as (
+        select cm.country_id,cm.name as country,cm.abbr_name as country_code,count(distinct ctirs.investigator_id) from cte c
+        join graphs_new.clinical_trial_investigator_rels ctirs on ctirs.ct_id=c.ct_id join graphs_new.country_master cm on ctirs.country_id=cm.country_id
+        group by 1) select * from reference_data ";
+
 
         $edgeType = collect($request->edge_type_id);
         $edgeTypeImplode = $edgeType->implode(', ');
@@ -2511,9 +2519,6 @@ class NodeRevampController extends Controller
     //1 CT API
     public function getCTDiseaseAssoc_new(Request $request)
     {
-        // $edgeType = collect($request->edge_type_id);
-        // $edgeTypeImplode = $edgeType->implode(', ');
-
         // $users = DB::table('graphs_new.node_edge_rels')
         //         ->selectRaw('distinct destination_node')
         //         ->where('deleted', '=', 1)
@@ -2523,75 +2528,151 @@ class NodeRevampController extends Controller
         //         ->get();
         // echo $users;
         
-
-        // start here
-        // $sql2 = "select distinct destination_node as selected_nodes from graphs_new.node_edge_rels ner WHERE deleted=0 ";
-        // if ($request->nnrt_id != "") {
-        //     $sql2 = $sql2 . " and nnrt_id = $request->nnrt_id ";
-        // }
-
-        // $edgeType = collect($request->edge_type_id);
-        // $edgeTypeImplode = $edgeType->implode(', ');
-        // if (!empty($edgeTypeImplode))
-        //     $sql2 = $sql2 . " AND edge_type_id in (" . $edgeTypeImplode . ")"; //pass edge_type_id for Level 1
-
-        // $sourceNode = collect($request->source_node);
-        // $sourceNodeImplode = $sourceNode->implode(', ');
-        // if(!empty($sourceNodeImplode)){
-        //     $sql2 = $sql2 . " and source_node in (".$sourceNodeImplode.")";
-        // }
-        // // $sql2 = $sql2 . " LIMIT 100";
-        // // echo $sql2;
-
-        // $result2 = DB::select($sql2);
-        // // echo count($result2);
-
-        // $destinationNodes_ids = array();
-        // // $i=0;
-        // // echo gettype($result2);
-        // // print_r($result2);
-
-        // foreach ($result2 as $value) {
-        //     // echo $value;
-        //     // $destinationNodes_ids[] = $value->selected_nodes;
-        //     // array_push($destinationNodes_ids, $value->selected_nodes);
-        //     // $i++;
-        // }
-        // print_r($destinationNodes_ids);
-        
         //Start new code here
         $destinationNode = collect($request->destination_node);
         $destinationNodeImplode = $destinationNode->implode(', ');
 
+        //To get the destination node
         if(!empty($destinationNodeImplode)){         
             //////////// IF destination node not empty////////////////                  
             $destinatonAllNodes = $destinationNodeImplode;
-        }else{
-            //////////// IF destination node empty////////////////   
-            $destinationNodeAllForCT = collect($request->destination_node_all_for_ct);
-            $destinationNodeAllForCTImplode = $destinationNodeAllForCT->implode(', ');
-            // echo ($destinationNodeAllForCTImplode);     
-            $destinatonAllNodes = $destinationNodeAllForCTImplode;     
         }
+        else
+        {
+            //////////// IF destination node empty////////////////   
 
-        $sql = "with cte (ct_id,node_id,name) as (select ctdr.ct_id,ctdr.node_id,n.name from graphs_new.clinical_trial_disease_rels ctdr ";
-        $sql = $sql ." join graphs_new.nodes n on ctdr.node_id=n.node_id where 1=1 ";
+            //This one old way to get the destination nodes on existing variable
+            // $destinationNodeAllForCT = collect($request->destination_node_all_for_ct);
+            // $destinationNodeAllForCTImplode = $destinationNodeAllForCT->implode(', ');
+            // // echo ($destinationNodeAllForCTImplode);     
+            // $destinatonAllNodes = $destinationNodeAllForCTImplode;
+            //end
+            
+            $sql2 = "select distinct destination_node as selected_nodes from graphs_new.node_edge_rels ner WHERE deleted=0 ";
+            if ($request->nnrt_id != "") {
+                $sql2 = $sql2 . " and nnrt_id = $request->nnrt_id ";
+            }
+
+            $edgeType = collect($request->edge_type_id);
+            $edgeTypeImplode = $edgeType->implode(', ');
+            if (!empty($edgeTypeImplode))
+                $sql2 = $sql2 . " AND edge_type_id in (" . $edgeTypeImplode . ")"; //pass edge_type_id for Level 1
+
+            $sourceNode = collect($request->source_node);
+            $sourceNodeImplode = $sourceNode->implode(', ');
+            if(!empty($sourceNodeImplode)){
+                $sql2 = $sql2 . " and source_node in (".$sourceNodeImplode.")";
+            }
+            $sql2 = $sql2 . " LIMIT 100";
+            // echo $sql2;
+
+            $result2 = DB::select($sql2);
+            // // echo count($result2);
+
+            $destinationNodes_ids = array();
+            foreach ($result2 as $value) {
+                $destinationNodes_ids[] = $value->selected_nodes;
+            }
+            $destinationNodesId = collect($destinationNodes_ids);
+            $destinationNodesIdRelevantIds = $destinationNodesId->implode(', ');
+            
+            $destinatonAllNodes = $destinationNodesIdRelevantIds;
+        }   
         
+        // $sql = "with cte (ct_id,node_id,name) as (select ctdr.ct_id,ctdr.node_id,n.name from graphs_new.clinical_trial_disease_rels ctdr ";
+        // $sql = $sql ." join graphs_new.nodes n on ctdr.node_id=n.node_id where 1=1 ";
+        
+        // $sourceNode = collect($request->source_node);
+        // $sourceNodeImplode = $sourceNode->implode(', ');
+        // if(!empty($sourceNodeImplode)){
+        //     $sql = $sql . " and ctdr.node_id in (".$sourceNodeImplode.")";
+        // }       
+        // $sql = $sql . " or ctdr.node_id in (".$destinatonAllNodes.")";       
+
+        // // $sql = $sql . " and deleted=0 )"; //-- just for reference pass here desired destination node_id list!
+        // $sql = $sql . "), reference_data (node_id,disease_name,ct_id,nct_id,org_study_id,secondary_study_id,title,overall_status, phase_id,phase_name,has_expanded_access,minimum_age,maximum_age,healthy_volunteers,verification_date,study_first_submitted,study_first_posted,last_update_submitted,last_update_submitted_qc,study_type,gender,study_first_submitted_qc,trial_design) as(select c.node_id,c.name as disease_name,ct.ct_id,ct.nct_id,ct.org_study_id,ct.secondary_study_id,ct.title,ct.overall_status,ct.phase_id,pm.name as phase_name,ct.has_expanded_access,ct.minimum_age,ct.maximum_age,ct.healthy_volunteers,ct.verification_date,ct.study_first_submitted,ct.study_first_posted,ct.last_update_submitted,ct.last_update_submitted_qc,ct.study_type,ct.gender,ct.study_first_submitted_qc,ct.trial_design from cte c join source_new.clinical_trial ct on c.ct_id=ct.ct_id join ontology.phase_master pm on ct.phase_id=pm.phase_id) select rd.* from reference_data rd ";
+        // $sql = $sql . " limit 10000";
+        // echo $sql;
+
+        //NEW WAY
+        $sql = "with cte (ct_id,node_id,name) as (select ctdr.ct_id,ctdr.node_id,n.name from graphs_new.clinical_trial_disease_rels ctdr join graphs_new.nodes n on ctdr.node_id=n.node_id where 1=1 ";
         $sourceNode = collect($request->source_node);
         $sourceNodeImplode = $sourceNode->implode(', ');
         if(!empty($sourceNodeImplode)){
-            $sql = $sql . " and ctdr.node_id in (".$sourceNodeImplode.")";
-        }       
-        $sql = $sql . " or ctdr.node_id in (".$destinatonAllNodes.")";       
+            $sql = $sql . " and ctdr.node_id in (".$sourceNodeImplode.", ".$destinatonAllNodes.")";
+        }
+        // $sql = $sql . " or ctdr.node_id in (".$destinatonAllNodes.")";
+        // $sql = $sql ." join graphs_new.nodes n on ctdr.node_id=n.node_id where 1=1 ";
 
-        // $sql = $sql . " and deleted=0 )"; //-- just for reference pass here desired destination node_id list!
-        $sql = $sql . "), reference_data (node_id,disease_name,ct_id,nct_id,org_study_id,secondary_study_id,title,overall_status, phase_id,phase_name,has_expanded_access,minimum_age,maximum_age,healthy_volunteers,verification_date,study_first_submitted,study_first_posted,last_update_submitted,last_update_submitted_qc,study_type,gender,study_first_submitted_qc,trial_design) as(select c.node_id,c.name as disease_name,ct.ct_id,ct.nct_id,ct.org_study_id,ct.secondary_study_id,ct.title,ct.overall_status,ct.phase_id,pm.name as phase_name,ct.has_expanded_access,ct.minimum_age,ct.maximum_age,ct.healthy_volunteers,ct.verification_date,ct.study_first_submitted,ct.study_first_posted,ct.last_update_submitted,ct.last_update_submitted_qc,ct.study_type,ct.gender,ct.study_first_submitted_qc,ct.trial_design from cte c join source_new.clinical_trial ct on c.ct_id=ct.ct_id join ontology.phase_master pm on ct.phase_id=pm.phase_id) select rd.* from reference_data rd ";
-        $sql = $sql . " limit 10000";
+        $sql = $sql . "),reference_data (node_id,disease_name,ct_id,nct_id,org_study_id,secondary_study_id,title,overall_status, phase_id,phase_name,has_expanded_access,minimum_age,maximum_age,healthy_volunteers,verification_date,study_first_submitted,study_first_posted,last_update_submitted,last_update_submitted_qc,study_type,gender,study_first_submitted_qc,trial_design) as(select c.node_id,c.name as disease_name,ct.ct_id,ct.nct_id,ct.org_study_id,ct.secondary_study_id,ct.title,ct.overall_status,ct.phase_id,pm.name as phase_name,ct.has_expanded_access,ct.minimum_age,ct.maximum_age,ct.healthy_volunteers,ct.verification_date,ct.study_first_submitted,ct.study_first_posted,ct.last_update_submitted,ct.last_update_submitted_qc,ct.study_type,ct.gender,ct.study_first_submitted_qc,ct.trial_design from cte c join source_new.clinical_trial ct on c.ct_id=ct.ct_id join ontology.phase_master pm on ct.phase_id=pm.phase_id) select rd.* from reference_data rd ";
+        $sql = $sql . " limit 5000";
         // echo $sql;
 
         $result = DB::select($sql);
         return response()->json([
             'CTDATA' => $result
+        ]);
+    }
+
+    //2. API for Word Map in investigation Country
+    public function getCTInvestigatorCountry_new(Request $request)
+    {
+        //Start new code here
+        $destinationNode = collect($request->destination_node);
+        $destinationNodeImplode = $destinationNode->implode(', ');
+
+        //To get the destination node
+        if(!empty($destinationNodeImplode)){         
+            //////////// IF destination node not empty////////////////                  
+            $destinatonAllNodes = $destinationNodeImplode;
+        }
+        else
+        {
+            //////////// IF destination node empty////////////////            
+            $sql2 = "select distinct destination_node as selected_nodes from graphs_new.node_edge_rels ner WHERE deleted=0 ";
+            if ($request->nnrt_id != "") {
+                $sql2 = $sql2 . " and nnrt_id = $request->nnrt_id ";
+            }
+
+            $edgeType = collect($request->edge_type_id);
+            $edgeTypeImplode = $edgeType->implode(', ');
+            if (!empty($edgeTypeImplode))
+                $sql2 = $sql2 . " AND edge_type_id in (" . $edgeTypeImplode . ")"; //pass edge_type_id for Level 1
+
+            $sourceNode = collect($request->source_node);
+            $sourceNodeImplode = $sourceNode->implode(', ');
+            if(!empty($sourceNodeImplode)){
+                $sql2 = $sql2 . " and source_node in (".$sourceNodeImplode.")";
+            }
+            $sql2 = $sql2 . " LIMIT 100";
+            // echo $sql2;
+
+            $result2 = DB::select($sql2);
+            // // echo count($result2);
+
+            $destinationNodes_ids = array();
+            foreach ($result2 as $value) {
+                $destinationNodes_ids[] = $value->selected_nodes;
+            }
+            $destinationNodesId = collect($destinationNodes_ids);
+            $destinationNodesIdRelevantIds = $destinationNodesId->implode(', ');
+            
+            $destinatonAllNodes = $destinationNodesIdRelevantIds;
+        }        
+        
+        $sql = "with cte (ct_id) as (select distinct ctdr.ct_id from graphs_new.clinical_trial_disease_rels ctdr where 1=1";
+        $sourceNode = collect($request->source_node);
+        $sourceNodeImplode = $sourceNode->implode(', ');  
+
+        if(!empty($sourceNodeImplode)){
+            $sql = $sql . " and ctdr.node_id in (".$sourceNodeImplode.", ".$destinatonAllNodes.")"; //-- just for reference pass here desired  node_id list in case you have! (COMBINED DATA)
+        }
+        $sql = $sql ."),reference_data (country_id,country,country_code,count_investigator_ids) as (select cm.country_id,cm.name as country,cm.abbr_name as country_code,count(distinct ctirs.investigator_id) from cte c join graphs_new.clinical_trial_investigator_rels ctirs on ctirs.ct_id=c.ct_id join graphs_new.country_master cm on ctirs.country_id=cm.country_id group by 1) select * from reference_data limit 100";
+        // echo $sql;
+
+        $result = DB::select($sql);
+        return response()->json([
+            'countryData' => $result
         ]);
     }
 }
