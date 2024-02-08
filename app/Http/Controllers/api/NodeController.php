@@ -34,7 +34,12 @@ class NodeController extends Controller
 
     public function getNodeSelects(Request $request)
     {
-        $sql = "select nnrt_id,name as pair_name,sr_no from graphs_new.node_node_relation_types where deleted=0 ";
+        if($request->ct_type != ""){
+            $sql = "select nnrt_id,name as pair_name,sr_no from graphs_new.node_node_relation_types where nnrt_id in (29, 36, 5, 33, 26, 12, 2, 9) and deleted=0 ";
+        }else{
+            $sql = "select nnrt_id,name as pair_name,sr_no from graphs_new.node_node_relation_types where deleted=0 ";
+        }
+
         if ($request->cameFromScenario == 1) {
             $sql = $sql . " and nnrt_id = " . $request->nnrt_id; // pass node-node relation type id
         }
