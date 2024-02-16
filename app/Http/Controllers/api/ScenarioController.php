@@ -69,13 +69,6 @@ class ScenarioController extends Controller
         // echo "scenario1: ", $scenario;
         // echo "scenario2: ", $scenario->user_id['user_id'];
 
-        $sql = "INSERT INTO scenarios (user_id,scenario_name,filter_criteria, comments) 
-        values ('".$scenario->user_id['user_id']."','".$scenario->filter_name."','".json_encode(($scenario->filter_criteria))."','".$scenario->user_comments."')";
-        // echo $sql;
-        
-        $result = DB::connection('pgsql2')->select($sql);
-        $lastId = DB::connection('pgsql2')->getPdo()->lastInsertId(); // get the last inserted id
-
         //Start Result set is also stored in the excel format 
         if($scenario->result_set_checked == true)
         {
@@ -111,10 +104,59 @@ class ScenarioController extends Controller
             Storage::disk('s3')->put($target, fopen($csvFileNameWithPath, 'r+'));//uploading video into S3 bucket
             $s3FileName = Storage::disk('s3')->url( $target );//getting URL of uloaded video from S3
             // return $s3FileName;
+        }
+
+        if($scenario->result_set_with_edge_type == true)
+        {
+            $csvFileName = $scenario->filter_name."_edges.csv";
+            $path = storage_path('app/public/'.$scenario->user_id['user_id']);
+            // $path = storage_path('app/public/');            
+            $file = fopen($path.$csvFileName, 'w');
+            $columns = array('news_id', 'sourcenode', 'destinationnode','level','EdgeTypeName','PMIDCount','RankScore');
+            fputcsv($file, $columns);
+
+            foreach ($scenario['result_data_set_edge'] as $product) {
+                $row['news_id']  = $product['news_id'];
+                $row['sourcenode']  = $product['sourcenode'];
+                $row['destinationnode']  = $product['destinationnode'];
+                $row['level']  = $product['level'];
+                $row['edgeTypeName']  = $product['edgeTypeName'];
+                $row['PMIDCount']  = $product['PMIDCount'];              
+                $row['RankScore']  = $product['RankScore'];
+                fputcsv($file, array($row['news_id'], $row['sourcenode'], $row['destinationnode'], $row['level'], $row['edgeTypeName'], $row['PMIDCount'], $row['RankScore'] ));
+            }
+            fclose($file);            
+
+            $csvFileNameWithPath2 = $path.$csvFileName;
+            $csvFileNameExtension2 = pathinfo($csvFileNameWithPath2, PATHINFO_EXTENSION);
+
+            // $target2 = 'advisor/short_videos/'.md5(uniqid()).'_'.time().".".$csvFileNameExtension;//creating complete file name        
+            $target2 = md5(uniqid()).'_'.time().".".$csvFileNameExtension2;//creating complete file name        
+            Storage::disk('s3')->put($target2, fopen($csvFileNameWithPath2, 'r+'));//uploading video into S3 bucket
+            $s3FileName2 = Storage::disk('s3')->url( $target2 );//getting URL of uloaded video from S3
+            // return $s3FileName2;
+        }
+
+        $sql = "INSERT INTO scenarios (user_id,scenario_name,filter_criteria, comments) 
+        values ('".$scenario->user_id['user_id']."','".$scenario->filter_name."','".json_encode(($scenario->filter_criteria))."','".$scenario->user_comments."')";
+        // echo $sql;
+        
+        $result = DB::connection('pgsql2')->select($sql);
+        $lastId = DB::connection('pgsql2')->getPdo()->lastInsertId(); // get the last inserted id
+
+        if($scenario->result_set_checked == true && $scenario->result_set_with_edge_type == true){
+            $sql = "UPDATE scenarios SET uploaded_file_url='".$s3FileName."', uploaded_file_url2='".$s3FileName2."' where id='".$lastId."' and user_id = '".$scenario->user_id['user_id']."' ";
+            unlink($csvFileNameWithPath);
+            unlink($csvFileNameWithPath2);
             
+            $result = DB::connection('pgsql2')->select($sql);
+            return response()->json([
+                'scenarioUpdate' => $result
+            ]);
+        }
+        else if($scenario->result_set_checked == true){
             $sql = "UPDATE scenarios SET uploaded_file_url='".$s3FileName."' where id='".$lastId."' and user_id = '".$scenario->user_id['user_id']."' ";
             // echo $sql;
-
             //After inserting the excel file url into database delete the file from folder
             unlink($csvFileNameWithPath);
             
@@ -122,11 +164,24 @@ class ScenarioController extends Controller
             return response()->json([
                 'scenarioUpdate' => $result
             ]);
-        }else{
+        }
+        else if($scenario->result_set_with_edge_type == true){
+            $sql = "UPDATE scenarios SET uploaded_file_url2='".$s3FileName2."' where id='".$lastId."' and user_id = '".$scenario->user_id['user_id']."' ";
+            // echo $sql;
+
+            //After inserting the excel file url into database delete the file from folder
+            unlink($csvFileNameWithPath2);
+
+            $result = DB::connection('pgsql2')->select($sql);
             return response()->json([
                 'scenarioUpdate' => $result
             ]);
-        }       
+        }
+        else{
+            return response()->json([
+                'scenarioUpdate' => $result
+            ]);
+        }
     }
 
     //Update Scenario
@@ -172,7 +227,7 @@ class ScenarioController extends Controller
     // Get User Scenario
     public function getUserScenarios(Request $request){
         $userId = $request->user_id;
-        $sql = "select u.user_name, s.id, s.user_id, s.scenario_name, s.filter_criteria, s.uploaded_file_url, s.comments, s.created_at FROM scenarios as s LEFT JOIN users as u on s.user_id=u.user_id 
+        $sql = "select u.user_name, s.id, s.user_id, s.scenario_name, s.filter_criteria, s.uploaded_file_url, s.uploaded_file_url2, s.comments, s.created_at FROM scenarios as s LEFT JOIN users as u on s.user_id=u.user_id 
         WHERE s.deleted = 0 and s.user_id =".$userId." order by created_at desc";
         // echo $sql;
         $result = DB::connection('pgsql2')->select($sql);

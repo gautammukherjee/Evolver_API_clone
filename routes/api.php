@@ -78,6 +78,9 @@ Route::post('/getCTInvestigatorRelsByStats_new', [NodeRevampController::class, '
 Route::post('/getMasterListsRevampLevelOne', [NodeRevampController::class, 'getMasterListsRevampLevelOne']);
 Route::post('/getMasterListsRevampLevelTwo', [NodeRevampController::class, 'getMasterListsRevampLevelTwo']);
 Route::post('/getMasterListsRevampLevelThree', [NodeRevampController::class, 'getMasterListsRevampLevelThree']);
+Route::post('/getMasterListsRevampEdgeTypeLevelOne', [NodeRevampController::class, 'getMasterListsRevampEdgeTypeLevelOne']);
+Route::post('/getMasterListsRevampEdgeTypeLevelTwo', [NodeRevampController::class, 'getMasterListsRevampEdgeTypeLevelTwo']);
+Route::post('/getMasterListsRevampEdgeTypeLevelThree', [NodeRevampController::class, 'getMasterListsRevampEdgeTypeLevelThree']);
 Route::post('/getMasterListsRevampLevelOneCount', [NodeRevampController::class, 'getMasterListsRevampLevelOneCount']);
 Route::post('/getMasterListsRevampLevelTwoCount', [NodeRevampController::class, 'getMasterListsRevampLevelTwoCount']);
 Route::post('/getMasterListsRevampLevelThreeCount', [NodeRevampController::class, 'getMasterListsRevampLevelThreeCount']);
