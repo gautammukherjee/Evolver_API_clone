@@ -23,6 +23,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+// Route::middleware(['auth:api'])->group(function(){
+    // Route::get('/getEdgeType', [NodeController::class, 'getEdgeType']);
+    // Route::get('/getEdgeTypeFirst', [NodeController::class, 'getEdgeTypeFirst']);
+// });
+
 Route::post('/login', [UserController::class, 'login']);
 // Route::post('/login','App\Http\Controllers\api\UserController@login');
 
