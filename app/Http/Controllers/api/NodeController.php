@@ -719,8 +719,8 @@ class NodeController extends Controller
         return response()->json([
             'pmidListsSentence' => $result
         ]);
-    }
-
+    }    
+    
     public function getPMIDListsInRelation(Request $request)
     {
         $sql = "select distinct neslr.pmid, sl.title, sl.publication_date from graphs_new.node_edge_rels ndr join graphs_new.node_edge_sci_lit_rels neslr on ndr.id = neslr.ne_id join source_new.sci_lits sl on neslr.pmid = sl.pmid where 1=1 ";

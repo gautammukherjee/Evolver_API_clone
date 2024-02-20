@@ -2676,6 +2676,33 @@ class NodeRevampController extends Controller
         ]);
     }
 
+
+    //For ct lists in details page
+    //1 CT API
+    public function getCTPMIDLists(Request $request)
+    {
+        //Start new code here
+        $uniqueDestinationNode = $request->unique_destination_node;
+
+        //NEW WAY
+        $sql = "with cte (ct_id,node_id,name) as (select ctdr.ct_id,ctdr.node_id,n.name from graphs_new.clinical_trial_disease_rels ctdr join graphs_new.nodes n on ctdr.node_id=n.node_id where 1=1 ";
+
+        if(!empty($uniqueDestinationNode)){
+            $sql = $sql . " and ctdr.node_id = ".$uniqueDestinationNode;
+        }
+        // $sql = $sql . " or ctdr.node_id in (".$destinatonAllNodes.")";
+        // $sql = $sql ." join graphs_new.nodes n on ctdr.node_id=n.node_id where 1=1 ";
+
+        $sql = $sql . "),reference_data (node_id,disease_name,ct_id,nct_id,org_study_id,secondary_study_id,title,overall_status, phase_id,phase_name,has_expanded_access,minimum_age,maximum_age,healthy_volunteers,verification_date,study_first_submitted,study_first_posted,last_update_submitted,last_update_submitted_qc,study_type,gender,study_first_submitted_qc,trial_design) as(select c.node_id,c.name as disease_name,ct.ct_id,ct.nct_id,ct.org_study_id,ct.secondary_study_id,ct.title,ct.overall_status,ct.phase_id,pm.name as phase_name,ct.has_expanded_access,ct.minimum_age,ct.maximum_age,ct.healthy_volunteers,ct.verification_date,ct.study_first_submitted,ct.study_first_posted,ct.last_update_submitted,ct.last_update_submitted_qc,ct.study_type,ct.gender,ct.study_first_submitted_qc,ct.trial_design from cte c join source_new.clinical_trial ct on c.ct_id=ct.ct_id join ontology.phase_master pm on ct.phase_id=pm.phase_id) select rd.* from reference_data rd ";
+        $sql = $sql . " limit 10000";
+        // echo $sql;
+
+        $result = DB::select($sql);
+        return response()->json([
+            'CTDATAInDetails' => $result
+        ]);
+    }
+
     // FOR download in details page for edge type
     public function getMasterListsRevampEdgeTypeLevelOne(Request $request)
     {

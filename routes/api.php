@@ -50,6 +50,7 @@ Route::post('/pmid_count_with_gene_disease', [ChartController::class, 'pmid_coun
 Route::post('/getEdgeTypeName', [NodeController::class, 'getEdgeTypeName']);
 Route::post('/getEdgePMIDLists', [NodeController::class, 'getEdgePMIDLists']);
 Route::post('/getEdgeTypeSentencePMIDLists', [NodeController::class, 'getEdgeTypeSentencePMIDLists']);
+Route::post('/getCTPMIDLists', [NodeRevampController::class, 'getCTPMIDLists']);
 Route::post('/getDistributionRelationType', [NodeController::class, 'getDistributionRelationType']);
 Route::post('/getEvidenceData', [NodeController::class, 'getEvidenceData']);
 
