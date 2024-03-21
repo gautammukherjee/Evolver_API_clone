@@ -87,9 +87,15 @@ Route::post('/getMasterListsRevampLevelThree', [NodeRevampController::class, 'ge
 Route::post('/getMasterListsRevampEdgeTypeLevelOne', [NodeRevampController::class, 'getMasterListsRevampEdgeTypeLevelOne']);
 Route::post('/getMasterListsRevampEdgeTypeLevelTwo', [NodeRevampController::class, 'getMasterListsRevampEdgeTypeLevelTwo']);
 Route::post('/getMasterListsRevampEdgeTypeLevelThree', [NodeRevampController::class, 'getMasterListsRevampEdgeTypeLevelThree']);
+
 Route::post('/getMasterListsRevampLevelOneCount', [NodeRevampController::class, 'getMasterListsRevampLevelOneCount']);
 Route::post('/getMasterListsRevampLevelTwoCount', [NodeRevampController::class, 'getMasterListsRevampLevelTwoCount']);
 Route::post('/getMasterListsRevampLevelThreeCount', [NodeRevampController::class, 'getMasterListsRevampLevelThreeCount']);
+
+//new APIs UNIQUE PMID count
+Route::post('/getMasterListsRevampLevelOneUniquePMIDCount', [NodeRevampController::class, 'getMasterListsRevampLevelOneUniquePMIDCount']);
+Route::post('/getMasterListsRevampLevelTwoUniquePMIDCount', [NodeRevampController::class, 'getMasterListsRevampLevelTwoUniquePMIDCount']);
+Route::post('/getMasterListsRevampLevelThreeUniquePMIDCount', [NodeRevampController::class, 'getMasterListsRevampLevelThreeUniquePMIDCount']);
 
 // 2. Network Map Page
 Route::post('/getMasterListsMapRevampLevelOne', [NodeRevampController::class, 'getMasterListsMapRevampLevelOne']);
