@@ -2743,6 +2743,72 @@ class NodeRevampController extends Controller
         ]);    
     }
 
+    //3 CT API for unique trails
+    public function getCTInvestigatorName_new(Request $request)
+    {
+        //Start new code here
+        $destinationNode = collect($request->destination_node);
+        $destinationNodeImplode = $destinationNode->implode(', ');
+
+        //To get the destination node
+        if(!empty($destinationNodeImplode)){         
+            //////////// IF destination node not empty////////////////                  
+            $destinatonAllNodes = $destinationNodeImplode;
+        }
+        else
+        {
+            //////////// IF destination node empty////////////////            
+            $sql2 = "select distinct destination_node as selected_nodes from graphs_new.node_edge_rels ner WHERE deleted=0 ";
+            if ($request->nnrt_id != "") {
+                $sql2 = $sql2 . " and nnrt_id = $request->nnrt_id ";
+            }
+
+            $edgeType = collect($request->edge_type_id);
+            $edgeTypeImplode = $edgeType->implode(', ');
+            if (!empty($edgeTypeImplode))
+                $sql2 = $sql2 . " AND edge_type_id in (" . $edgeTypeImplode . ")"; //pass edge_type_id for Level 1
+
+            $sourceNode = collect($request->source_node);
+            $sourceNodeImplode = $sourceNode->implode(', ');
+            if(!empty($sourceNodeImplode)){
+                $sql2 = $sql2 . " and source_node in (".$sourceNodeImplode.")";
+            }
+            $sql2 = $sql2 . " LIMIT 100";
+            // echo $sql2;
+
+            $result2 = DB::select($sql2);
+            // // echo count($result2);
+
+            $destinationNodes_ids = array();
+            foreach ($result2 as $value) {
+                $destinationNodes_ids[] = $value->selected_nodes;
+            }
+            $destinationNodesId = collect($destinationNodes_ids);
+            $destinationNodesIdRelevantIds = $destinationNodesId->implode(', ');
+            
+            $destinatonAllNodes = $destinationNodesIdRelevantIds;
+        }
+
+        //NEW WAY
+        $sql = "with cte (ct_id) as (select distinct ctdr.ct_id from graphs_new.clinical_trial_disease_rels ctdr where 1=1";
+
+        $sourceNode = collect($request->source_node);
+        $sourceNodeImplode = $sourceNode->implode(', ');
+        if(!empty($sourceNodeImplode)){
+            $sql = $sql . " and ctdr.node_id in (".$sourceNodeImplode.", ".$destinatonAllNodes.")";  //-- just for reference pass here desired  node_id list in case you have! (COMBINED DATA)
+        }
+
+        $sql = $sql." ),reference_data (investigator_id,investigator_name,affiliation,investigator_role_id,investigator_role,count_nct_ids) as (select im.investigator_id,im.name as investigator_name,im.affiliation,irm.investigator_role_id,irm.name as investigator_role, count(distinct ctirs.ct_id) from cte c join graphs_new.clinical_trial_investigator_rels ctirs on ctirs.ct_id=c.ct_id join graphs_new.investigator_master im on im.investigator_id=ctirs.investigator_id join graphs_new.investigator_role_master irm on im.investigator_role_id=irm.investigator_role_id group by 1,4)";
+        $sql = $sql. " select investigator_id,investigator_name,affiliation,investigator_role,count_nct_ids from reference_data";
+        $sql = $sql . " limit 5000";
+        // echo $sql;
+
+        $result = DB::select($sql);
+        return response()->json([
+            'CTInvestigatorNameDATA' => $result
+        ]);    
+    }
+
     //For ct lists in details page
     //1 CT API
     public function getCTPMIDLists(Request $request)
